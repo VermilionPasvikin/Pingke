@@ -1,0 +1,250 @@
+.container {
+  padding: 0;
+  background-color: #f5f5f5;
+  padding-bottom: 60px; /* 为底部输入框留出空间 */
+}
+
+/* 头部信息 */
+.header {
+  background-color: #fff;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 10px;
+}
+
+.course-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.course-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.course-meta {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 讨论列表 */
+.discussion-list {
+  padding: 0 15px;
+}
+
+.discussion-item {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 讨论头部 */
+.discussion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #1aad19;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.time {
+  font-size: 12px;
+  color: #999;
+  margin-top: 2px;
+}
+
+/* 讨论内容 */
+.discussion-content {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+/* 讨论操作栏 */
+.discussion-actions {
+  display: flex;
+  font-size: 12px;
+  color: #999;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 10px;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.action-item .icon {
+  margin-right: 4px;
+}
+
+/* 回复区域 */
+.replies-container {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.reply-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #f8f8f8;
+}
+
+.reply-item:last-child {
+  border-bottom: none;
+}
+
+.reply-content {
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.reply-author {
+  color: #1aad19;
+  font-weight: 500;
+}
+
+.reply-text {
+  color: #333;
+}
+
+.reply-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #999;
+}
+
+.reply-like {
+  color: #1aad19;
+}
+
+/* 回复输入框 */
+.reply-input-container {
+  display: flex;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.reply-input {
+  flex: 1;
+  height: 32px;
+  background-color: #f5f5f5;
+  border-radius: 16px;
+  padding: 0 15px;
+  font-size: 13px;
+}
+
+.reply-btn {
+  margin-left: 8px;
+  height: 32px;
+  font-size: 12px;
+  background-color: #1aad19;
+  color: #fff;
+  line-height: 32px;
+  padding: 0 15px;
+  border-radius: 16px;
+}
+
+/* 切换回复显示 */
+.toggle-replies {
+  font-size: 12px;
+  color: #1aad19;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.no-replies {
+  margin-top: 10px;
+}
+
+/* 空状态提示 */
+.empty-tip {
+  text-align: center;
+  color: #999;
+  padding: 30px 0;
+}
+
+/* 加载更多 */
+.load-more {
+  text-align: center;
+  padding: 15px 0;
+  color: #999;
+  font-size: 13px;
+}
+
+/* 底部主输入框 */
+.bottom-input {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  padding: 10px 15px;
+  background-color: #fff;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  align-items: center;
+}
+
+.main-input {
+  flex: 1;
+  height: 36px;
+  background-color: #f5f5f5;
+  border-radius: 18px;
+  padding: 0 15px;
+  font-size: 14px;
+}
+
+.send-btn {
+  margin-left: 10px;
+  height: 36px;
+  font-size: 14px;
+  background-color: #1aad19;
+  color: #fff;
+  line-height: 36px;
+  padding: 0 18px;
+  border-radius: 18px;
+  opacity: 1;
+  transition: all 0.3s;
+}
+
+.send-btn[disabled] {
+  background-color: #ccc;
+  opacity: 0.6;
+  color: #666;
+}

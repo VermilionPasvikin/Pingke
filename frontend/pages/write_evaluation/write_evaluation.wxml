@@ -1,0 +1,66 @@
+<view class="container">
+  <!-- 评分区域 -->
+  <view class="rating-section">
+    <text class="section-title">总体评分</text>
+    <view class="stars-container">
+      <text wx:for="{{[1,2,3,4,5]}}" wx:key="index" 
+            class="star {{selectedScore >= item ? 'active' : ''}}" 
+            bindtap="selectScore" data-score="{{item}}">
+        ★
+      </text>
+    </view>
+    <text class="score-text">{{getScoreText(selectedScore)}}</text>
+  </view>
+
+  <!-- 标签选择区域 -->
+  <view class="tags-section">
+    <text class="section-title">选择标签（最多选3个）</text>
+    <view class="tags-container">
+      <!-- 渲染预定义标签 -->
+      <view wx:for="{{predefinedTags}}" wx:key="index" 
+            class="simple-tag {{tagsState[index] ? 'tag-selected' : ''}}" 
+            data-tag="{{item}}" 
+            data-index="{{index}}" 
+            bindtap="toggleTag">
+          {{item}}
+      </view>
+      
+      <!-- 渲染自定义标签 - 无条件显示为选中状态 -->
+      <view wx:for="{{customTags}}" wx:key="index" 
+            class="simple-tag tag-selected" 
+            data-tag="{{item}}" 
+            data-custom="true"
+            bindtap="toggleCustomTag">
+          {{item}}
+      </view>
+    </view>
+    <view class="custom-tag-section">
+      <text class="custom-tag-label">自定义标签：</text>
+      <input type="text" placeholder="输入自定义标签" bindinput="onCustomTagInput" value="{{customTag}}" />
+      <button type="primary" size="mini" bindtap="addCustomTag" disabled="{{!canAddCustomTag}}">添加</button>
+    </view>
+  </view>
+
+  <!-- 评论输入区域 -->
+  <view class="comment-section">
+    <text class="section-title">评价内容</text>
+    <textarea placeholder="分享你的学习体验和课程感受..." 
+              value="{{comment}}" 
+              bindinput="onCommentInput" 
+              maxlength="500" 
+              auto-height="true" 
+              show-confirm-bar="false"></textarea>
+  </view> <!-- 结束comment-section -->
+  
+  <!-- 匿名选项 -->
+  <view class="anonymous-section">
+    <switch checked="{{anonymous}}" bindchange="toggleAnonymous">匿名评价</switch>
+  </view>
+  
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button type="primary" size="default" bindtap="submitEvaluation" disabled="{{!selectedScore || submitting}}">
+      {{submitting ? '提交中...' : '提交评价'}}
+    </button>
+  </view>
+</view> <!-- 结束container -->

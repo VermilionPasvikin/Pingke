@@ -1,0 +1,181 @@
+.container {
+  padding: 0 0 20px;
+  background-color: #f5f5f5;
+}
+
+/* 分类标签 */
+.tab-bar {
+  display: flex;
+  background-color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  font-size: 14px;
+  color: #666;
+  position: relative;
+}
+
+.tab-item.active {
+  color: #07c160;
+  font-weight: 600;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 30%;
+  width: 40%;
+  height: 2px;
+  background-color: #07c160;
+  border-radius: 1px;
+}
+
+/* 排行榜内容区域 */
+.ranking-content {
+  padding: 10px 15px;
+}
+
+/* 筛选区域 */
+.filter-section {
+  display: flex;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.filter-item {
+  padding: 5px 10px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* 排行榜列表 */
+.ranking-list {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 10px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ranking-item:last-child {
+  border-bottom: none;
+}
+
+/* 排名数字 */
+.rank-number {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  color: #666;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+/* 前三名特殊样式 */
+.rank-number.top1 {
+  background-color: #ffd700;
+  color: #fff;
+}
+
+.rank-number.top2 {
+  background-color: #c0c0c0;
+  color: #fff;
+}
+
+.rank-number.top3 {
+  background-color: #cd7f32;
+  color: #fff;
+}
+
+/* 排行信息 */
+.ranking-info {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.course-name,
+.teacher-name,
+.department-name {
+  display: block;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.department,
+.teacher-name {
+  font-size: 12px;
+  color: #999;
+}
+
+/* 排行分数 */
+.ranking-score {
+  text-align: right;
+}
+
+.score {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ff6b6b;
+  margin-bottom: 2px;
+}
+
+.evaluation-count,
+.course-count {
+  font-size: 12px;
+  color: #999;
+}
+
+/* 标签云 */
+.tags-cloud {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tag {
+  display: inline-block;
+  padding: 8px 15px;
+  background-color: #f0f0f0;
+  color: #666;
+  border-radius: 15px;
+  margin: 5px;
+}
+
+/* 空状态提示 */
+.empty-tip {
+  text-align: center;
+  color: #999;
+  padding: 40px 0;
+  font-size: 14px;
+}

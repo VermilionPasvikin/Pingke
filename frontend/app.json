@@ -1,0 +1,36 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/course_detail/course_detail",
+    "pages/evaluation_list/evaluation_list",
+    "pages/write_evaluation/write_evaluation",
+    "pages/discussion/discussion",
+    "pages/rankings/rankings"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "选修课评分榜",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#07C160",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "课程列表",
+        "iconPath": "assets/icon_index.png",
+        "selectedIconPath": "assets/icon_index_selected.png"
+      },
+      {
+        "pagePath": "pages/rankings/rankings",
+        "text": "排行榜",
+        "iconPath": "assets/icon_ranking.png",
+        "selectedIconPath": "assets/icon_ranking_selected.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

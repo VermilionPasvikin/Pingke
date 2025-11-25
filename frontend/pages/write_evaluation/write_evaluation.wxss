@@ -1,0 +1,143 @@
+.container {
+  padding: 15px;
+  background-color: #f5f5f5;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  display: block;
+}
+
+/* 评分区域 */
+.rating-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stars-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.star {
+  font-size: 40px;
+  color: #ddd;
+  margin: 0 10px;
+}
+
+.star.active {
+  color: #ffc107;
+}
+
+.score-text {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+}
+
+/* 标签区域 */
+.tags-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tags-container {
+  margin-bottom: 20rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.simple-tag {
+  padding: 10rpx 20rpx;
+  margin: 10rpx;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  background-color: #f0f0f0;
+  color: #666;
+  border: 1px solid #ddd;
+  transition: all 0.2s;
+}
+
+.simple-tag.tag-selected {
+  background-color: #07c160;
+  color: white;
+  border-color: #07c160;
+}
+
+.custom-tag-section {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.custom-tag-label {
+  font-size: 14px;
+  color: #666;
+  margin-right: 10px;
+}
+
+.custom-tag-section input {
+  flex: 1;
+  height: 36px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0 10px;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+.custom-tag-section button {
+  height: 36px;
+  font-size: 14px;
+  padding: 0 15px;
+}
+
+/* 评论区域 */
+.comment-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.comment-section textarea {
+  width: 100%;
+  min-height: 120px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* 匿名选项区域 */
+.anonymous-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 提交按钮区域 */
+.submit-section {
+  margin: 20px 0 40px 0;
+}
+
+.submit-section button {
+  font-size: 16px;
+  font-weight: 600;
+  height: 44px;
+}

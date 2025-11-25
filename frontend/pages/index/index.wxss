@@ -1,0 +1,139 @@
+.container {
+  padding: 10px;
+}
+
+/* 搜索栏样式 */
+.search-bar {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.search-bar input {
+  flex: 1;
+  height: 36px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+.search-bar button {
+  height: 36px;
+  line-height: 36px;
+  font-size: 14px;
+  padding: 0 15px;
+}
+
+/* 筛选栏样式 */
+.filter-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+.filter-item {
+  padding: 5px 10px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+/* 课程列表样式 */
+.course-list {
+  margin-bottom: 20px;
+}
+
+.course-item {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.course-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+}
+
+.course-code {
+  font-size: 12px;
+  color: #999;
+  margin-left: 10px;
+  background-color: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.course-info {
+  display: flex;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+.teacher-name {
+  margin-right: 20px;
+}
+
+.course-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.score {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ff6b6b;
+  margin-right: 10px;
+}
+
+.evaluation-count {
+  font-size: 12px;
+  color: #999;
+}
+
+.course-tags {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background-color: #f0f0f0;
+  color: #666;
+  font-size: 12px;
+  border-radius: 10px;
+  margin-right: 8px;
+  margin-bottom: 5px;
+}
+
+/* 空状态提示 */
+.empty-tip {
+  text-align: center;
+  color: #999;
+  padding: 30px 0;
+}
+
+/* 加载更多 */
+.load-more {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.load-more button {
+  font-size: 14px;
+}

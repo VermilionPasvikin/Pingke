@@ -1,0 +1,45 @@
+<view class="container">
+  <!-- 筛选选项 -->
+  <view class="filter-bar">
+    <picker bindchange="onScoreFilterChange" value="{{scoreFilterIndex}}" range="{{scoreFilterOptions}}">
+      <view class="filter-item">{{scoreFilterOptions[scoreFilterIndex]}}</view>
+    </picker>
+    <picker bindchange="onSortChange" value="{{sortIndex}}" range="{{sortOptions}}">
+      <view class="filter-item">{{sortOptions[sortIndex]}}</view>
+    </picker>
+  </view>
+
+  <!-- 评价列表 -->
+  <view class="evaluation-list">
+    <block wx:if="{{evaluations.length > 0}}">
+      <view wx:for="{{evaluations}}" wx:key="id" class="evaluation-item">
+        <view class="evaluation-header">
+          <text class="evaluator">{{item.user_name || '匿名用户'}}</text>
+          <text class="evaluation-date">{{item.created_at}}</text>
+        </view>
+        <view class="evaluation-score">
+          <text class="score-text">分数：{{item.score || 0}}</text>
+        </view>
+        <text class="evaluation-content">{{item.comment || '暂无评论内容'}}</text>
+        <view class="evaluation-tags">
+              <block wx:if="{{item.tags && item.tags.length > 0}}">
+                <text wx:for="{{item.tags}}" wx:key="index" class="tag">{{item}}</text>
+              </block>
+              <text wx:else class="tag-empty">暂无标签</text>
+            </view>
+        <view class="evaluation-actions">
+          <text class="action" bindtap="likeEvaluation" data-id="{{item.id}}">
+            <text class="icon">{{item.is_liked ? '❤️' : '🤍'}}</text>
+            <text>{{item.likes_count || 0}}</text>
+          </text>
+        </view>
+      </view>
+    </block>
+    <view wx:else class="empty-tip">暂无评价</view>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{hasMore}}">
+    <button bindtap="loadMore" loading="{{loading}}">加载更多</button>
+  </view>
+</view>

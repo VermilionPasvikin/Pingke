@@ -1,0 +1,83 @@
+<view class="container">
+  <!-- 评论区头部信息 -->
+  <view class="header">
+    <view class="course-info">
+      <view class="course-name">{{courseInfo.name}}</view>
+      <view class="course-meta">{{courseInfo.teacher}} · {{courseInfo.credit}}学分</view>
+    </view>
+  </view>
+
+  <!-- 评论列表 -->
+  <view class="discussion-list">
+    <view wx:for="{{discussions}}" wx:key="id" class="discussion-item">
+      <view class="discussion-header">
+        <view class="user-info">
+          <view class="avatar">{{item.author.substring(0, 1)}}</view>
+          <view class="user-meta">
+            <view class="username">{{item.author}}</view>
+            <view class="time">{{item.created_at}}</view>
+          </view>
+        </view>
+      </view>
+      
+      <view class="discussion-content">{{item.content}}</view>
+      
+      <view class="discussion-actions">
+        <view class="action-item" bindtap="likeDiscussion" data-id="{{item.id}}">
+          <icon type="like" size="16" color="{{item.is_liked ? '#1aad19' : '#999'}}" class="icon" />
+          <text class="count">{{item.likes_count}}</text>
+        </view>
+        <view class="action-item" bindtap="replyDiscussion" data-id="{{item.id}}">
+          <icon type="chat" size="16" color="#999" class="icon" />
+          <text class="count">{{item.replies_count}}</text>
+        </view>
+      </view>
+      
+      <!-- 回复列表 -->
+      <view class="replies-container" wx:if="{{item.replies && item.replies.length > 0}}">
+        <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="reply_id" class="reply-item">
+          <view class="reply-content">
+            <text class="reply-author">{{reply.author}}:</text>
+            <text class="reply-text">{{reply.content}}</text>
+          </view>
+          <view class="reply-meta">
+            <text class="reply-time">{{reply.created_at}}</text>
+            <text class="reply-like" bindtap="likeReply" data-discussion-id="{{item.id}}" data-reply-id="{{reply.id}}">
+              {{reply.is_liked ? '已赞' : '点赞'}} ({{reply.likes_count}})
+            </text>
+          </view>
+        </view>
+        <view wx:if="{{item.showAllReplies || item.replies.length <= 3}}" class="reply-input-container">
+          <input class="reply-input" placeholder="回复..." bindinput="onReplyInput" data-id="{{item.id}}" value="{{replyInputs[item.id] || ''}}" />
+          <button class="reply-btn" bindtap="submitReply" data-id="{{item.id}}">发送</button>
+        </view>
+        <view class="toggle-replies" wx:if="{{!item.showAllReplies && item.replies.length > 3}}" bindtap="toggleReplies" data-id="{{item.id}}">
+          查看全部{{item.replies_count}}条回复
+        </view>
+      </view>
+      
+      <view class="no-replies" wx:if="{{!item.replies || item.replies.length === 0}}">
+        <view class="reply-input-container">
+          <input class="reply-input" placeholder="回复..." bindinput="onReplyInput" data-id="{{item.id}}" value="{{replyInputs[item.id] || ''}}" />
+          <button class="reply-btn" bindtap="submitReply" data-id="{{item.id}}">发送</button>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore}}">
+      <text>{{loading ? '加载中...' : '上拉加载更多'}}</text>
+    </view>
+    
+    <!-- 空状态提示 -->
+    <view class="empty-tip" wx:if="{{discussions.length === 0 && !loading}}">
+      <text>暂无讨论内容，快来分享你的想法吧！</text>
+    </view>
+  </view>
+
+  <!-- 底部评论输入框 -->
+  <view class="bottom-input">
+    <input class="main-input" placeholder="分享你的学习经验和想法..." bindinput="onMainInput" value="{{mainInput}}" />
+    <button class="send-btn" bindtap="submitDiscussion" disabled="{{!mainInput}}">发送</button>
+  </view>
+</view>

@@ -1,0 +1,133 @@
+<view class="container">
+  <!-- 课程基本信息 -->
+  <view class="course-header">
+    <text class="course-name">{{course.name}}</text>
+    <text class="course-code">{{course.course_code}}</text>
+    <view class="course-rating">
+      <text class="score">{{course.avg_score || '暂无评分'}}</text>
+      <text class="evaluation-count">{{course.evaluation_count || 0}}人评价</text>
+    </view>
+  </view>
+
+  <!-- 课程详细信息 -->
+  <view class="info-section">
+    <view class="info-item">
+      <text class="label">学分：</text>
+      <text class="value">{{course.credit || '-'}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">教师：</text>
+      <text class="value">{{course.teacher ? course.teacher.name : '-'}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">学院：</text>
+      <text class="value">{{course.department || '-'}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">学期：</text>
+      <text class="value">{{course.semester || '-'}}</text>
+    </view>
+    <view class="info-item">
+      <text class="label">简介：</text>
+      <text class="value">{{course.description || '暂无简介'}}</text>
+    </view>
+  </view>
+
+  <!-- 热门标签 -->
+  <view class="tags-section">
+    <text class="section-title">热门标签</text>
+    <view class="tags">
+      <block wx:if="{{popularTags && popularTags.length > 0}}">
+        <text wx:for="{{popularTags}}" wx:key="index" class="tag">{{item.name}} ({{item.count}})</text>
+      </block>
+      <text wx:else class="empty">暂无标签</text>
+    </view>
+  </view>
+
+  <!-- 评价区域 -->
+  <view class="evaluation-section">
+    <view class="section-header">
+      <text class="section-title">用户评价</text>
+      <text class="section-more" bindtap="navigateToEvaluationList">查看全部</text>
+    </view>
+    
+    <!-- 评分统计 -->
+    <view class="rating-stats">
+      <view class="score-circle">
+        <text class="circle-score">{{course.avg_score || '0.0'}}</text>
+      </view>
+      <view class="rating-distribution">
+        <view wx:for="{{[5,4,3,2,1]}}" wx:key="index" class="rating-item">
+          <text class="rating-star">{{item}}星</text>
+          <view class="rating-bar">
+            <view class="rating-fill" style="width: {{ratingDistribution[item] || 0}}%"></view>
+          </view>
+          <text class="rating-percent">{{ratingDistribution[item] || 0}}%</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 最新评价 -->
+    <view class="evaluation-list">
+      <block wx:if="{{recentEvaluations && recentEvaluations.length > 0}}">
+        <view wx:for="{{recentEvaluations}}" wx:key="id" class="evaluation-item">
+          <view class="evaluation-header">
+            <text class="evaluator">{{item.user_name || '匿名用户'}}</text>
+            <text class="evaluation-date">{{item.created_at}}</text>
+          </view>
+          <view class="evaluation-score">
+            <text class="score-text">分数：{{item.score || 0}}</text>
+          </view>
+          <text class="evaluation-content">{{item.comment || '暂无评论内容'}}</text>
+          <view class="evaluation-tags">
+            <block wx:if="{{item.tags && item.tags.length > 0}}">
+              <text wx:for="{{item.tags}}" wx:key="index" class="tag">{{item}}</text>
+            </block>
+            <text wx:else class="empty">暂无标签</text>
+          </view>
+          <view class="evaluation-actions">
+            <text class="action" bindtap="likeEvaluation" data-id="{{item.id}}">
+              <text class="icon">{{item.is_liked ? '❤️' : '🤍'}}</text>
+              <text>{{item.likes_count || 0}}</text>
+            </text>
+          </view>
+        </view>
+      </block>
+      <view wx:else class="empty">暂无评价</view>
+    </view>
+  </view>
+
+  <!-- 评论区 -->
+  <view class="comments-section">
+    <view class="section-header">
+      <text class="section-title">课程讨论</text>
+      <text class="section-more" bindtap="navigateToComments">查看全部</text>
+    </view>
+    
+    <view class="comments-list">
+      <block wx:if="{{recentComments && recentComments.length > 0}}">
+        <view wx:for="{{recentComments}}" wx:key="id" class="comment-item">
+          <view class="comment-header">
+            <text class="commenter">{{item.user_name || '匿名用户'}}</text>
+            <text class="comment-date">{{item.created_at}}</text>
+          </view>
+          <text class="comment-content">{{item.content}}</text>
+          <view class="comment-actions">
+            <text class="action" bindtap="likeComment" data-id="{{item.id}}">
+              <text class="icon">{{item.is_liked ? '❤️' : '🤍'}}</text>
+              <text>{{item.likes_count || 0}}</text>
+            </text>
+            <text class="action" bindtap="replyComment" data-id="{{item.id}}">回复 ({{item.replies_count || 0}})</text>
+          </view>
+        </view>
+      </block>
+      <view wx:else class="empty">暂无讨论</view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <button class="action-btn" type="primary" bindtap="writeEvaluation">写评价</button>
+    <button class="action-btn" type="default" bindtap="writeComment">参与讨论</button>
+  </view>
+</view>

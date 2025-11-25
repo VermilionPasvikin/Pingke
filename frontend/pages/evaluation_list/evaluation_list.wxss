@@ -1,0 +1,123 @@
+.container {
+  padding: 0;
+  background-color: #f5f5f5;
+}
+
+/* 筛选栏样式 */
+.filter-bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.filter-item {
+  padding: 5px 10px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* 评价列表样式 */
+.evaluation-list {
+  padding: 10px 15px;
+}
+
+.evaluation-item {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.evaluation-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #999;
+}
+
+.evaluator {
+  font-weight: 500;
+  color: #666;
+}
+
+.evaluation-score {
+  margin-bottom: 8px;
+}
+
+.star {
+  font-size: 16px;
+  color: #ddd;
+  margin-right: 2px;
+}
+
+.star.active {
+  color: #ffc107;
+}
+
+.score-text {
+  font-size: 14px;
+  color: #ff6b6b;
+  font-weight: 500;
+}
+
+.evaluation-content {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.evaluation-tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background-color: #f0f0f0;
+  color: #666;
+  font-size: 12px;
+  border-radius: 10px;
+  margin-right: 8px;
+  margin-bottom: 5px;
+}
+
+.evaluation-actions {
+  display: flex;
+  font-size: 12px;
+  color: #999;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+}
+
+.action .icon {
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+/* 空状态提示 */
+.empty-tip {
+  text-align: center;
+  color: #999;
+  padding: 30px 0;
+}
+
+/* 加载更多 */
+.load-more {
+  text-align: center;
+  padding: 10px 0;
+}

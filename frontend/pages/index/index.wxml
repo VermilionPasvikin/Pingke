@@ -1,0 +1,49 @@
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input type="text" placeholder="搜索课程或教师" bindinput="onSearchInput" bindconfirm="onSearch" />
+    <button type="primary" bindtap="onSearch">搜索</button>
+  </view>
+  
+  <!-- 筛选选项 -->
+  <view class="filter-bar">
+    <picker bindchange="onSemesterChange" value="{{semesterIndex}}" range="{{semesterOptions}}">
+      <view class="filter-item">{{semesterOptions[semesterIndex]}}</view>
+    </picker>
+    <picker bindchange="onSortChange" value="{{sortIndex}}" range="{{sortOptions}}">
+      <view class="filter-item">{{sortOptions[sortIndex]}}</view>
+    </picker>
+    <button type="default" bindtap="showDepartmentFilter">
+      学院筛选{{selectedDepartments.length > 0 ? '(' + selectedDepartments.length + ')' : ''}}
+    </button>
+  </view>
+  
+  <!-- 课程列表 -->
+  <view class="course-list">
+    <block wx:if="{{courses.length > 0}}">
+      <view wx:for="{{courses}}" wx:key="id" class="course-item" bindtap="navigateToCourseDetail" data-id="{{item.id}}">
+        <view class="course-header">
+          <text class="course-name">{{item.name}}</text>
+          <text class="course-code">{{item.course_code}}</text>
+        </view>
+        <view class="course-info">
+          <text class="teacher-name">教师: {{item.teacher.name}}</text>
+          <text class="credit">学分: {{item.credit}}</text>
+        </view>
+        <view class="course-rating">
+          <text class="score">{{item.avg_score || '暂无评分'}}</text>
+          <text class="evaluation-count">{{item.evaluation_count || 0}}人评价</text>
+        </view>
+        <view class="course-tags">
+          <text wx:if="{{item.popular_tags && item.popular_tags.length > 0}}" wx:for="{{item.popular_tags}}" wx:key="index" class="tag">{{item[0]}}</text>
+        </view>
+      </view>
+    </block>
+    <view wx:else class="empty-tip">暂无课程数据</view>
+  </view>
+  
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{hasMore}}">
+    <button bindtap="loadMore" loading="{{loading}}">加载更多</button>
+  </view>
+</view>
