@@ -51,7 +51,7 @@ class CoursesResource(Resource):
             )
         
         # 排序
-        if sort_by == 'score':
+        if sort_by in ['score', 'score_desc', 'score_asc']:
             # 按评分排序，需要进行复杂查询
             courses = []
             all_courses = query.all()
@@ -64,9 +64,29 @@ class CoursesResource(Resource):
                 else:
                     course_scores.append((course, 0))
             
-            # 按评分降序排序
-            course_scores.sort(key=lambda x: x[1], reverse=True)
+            # 根据排序类型决定升序或降序
+            reverse = sort_by != 'score_asc'
+            course_scores.sort(key=lambda x: x[1], reverse=reverse)
             courses = [c[0] for c in course_scores]
+            
+            # 手动分页
+            start = (page - 1) * per_page
+            end = start + per_page
+            paginated_courses = courses[start:end]
+            total = len(courses)
+        elif sort_by == 'comments_desc':
+            # 按评论数量降序排序
+            courses = []
+            all_courses = query.all()
+            # 计算每个课程的评论数量并排序
+            course_comments = []
+            for course in all_courses:
+                comment_count = len(course.evaluations)
+                course_comments.append((course, comment_count))
+            
+            # 按评论数量降序排序
+            course_comments.sort(key=lambda x: x[1], reverse=True)
+            courses = [c[0] for c in course_comments]
             
             # 手动分页
             start = (page - 1) * per_page

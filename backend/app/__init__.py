@@ -24,14 +24,14 @@ def create_app():
     from app.api import api
     
     # 导入模型（确保在创建表之前导入）
-    from app.models import Course, Teacher, Evaluation, Comment
+    from app.models import Course, Teacher, Evaluation, Comment, User, Like
     
     # 创建数据库表
     with app.app_context():
         db.create_all()
     
     # 先导入API模块，让它们注册路由
-    from app.api import courses, teachers, evaluations, comments, rankings, discussions, rankings_frontend
+    from app.api import courses, teachers, evaluations, comments, rankings, discussions, rankings_frontend, auth
     
     # 然后再将API对象与Flask应用关联，确保所有路由都已注册
     api.init_app(app)

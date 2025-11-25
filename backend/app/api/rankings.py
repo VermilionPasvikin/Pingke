@@ -12,6 +12,7 @@ class CourseRankingResource(Resource):
     def get(self):
         # 获取课程排行榜
         semester = request.args.get('semester')
+        department = request.args.get('department')
         limit = int(request.args.get('limit', 10))
         time_range = request.args.get('time_range')  # 'week', 'month', 'year', 'all'
         
@@ -19,6 +20,10 @@ class CourseRankingResource(Resource):
         course_query = Course.query
         if semester:
             course_query = course_query.filter(Course.semester == semester)
+        
+        # 按学院筛选
+        if department:
+            course_query = course_query.join(Teacher).filter(Teacher.department == department)
         
         all_courses = course_query.all()
         

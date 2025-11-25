@@ -1,9 +1,27 @@
 from flask import request, jsonify
 from flask_restful import Resource
 from app import db
-from app.models import Evaluation, Course
+from app.models import Evaluation, Course, Like, User
 from app.schemas import EvaluationSchema
 from sqlalchemy import desc
+import os
+import jwt
+
+def get_current_user():
+    """从请求头中获取当前用户信息"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return None
+    
+    token = auth_header.split(' ')[1]
+    try:
+        secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
+        payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+        user_id = payload.get('user_id')
+        user = User.query.get(user_id)
+        return user
+    except Exception:
+        return None
 
 evaluation_schema = EvaluationSchema()
 evaluations_schema = EvaluationSchema(many=True)
@@ -140,15 +158,47 @@ class EvaluationResource(Resource):
 
 class EvaluationLikeResource(Resource):
     def post(self, evaluation_id):
-        # 给评价点赞
-        evaluation = Evaluation.query.get_or_404(evaluation_id)
-        evaluation.likes += 1
-        db.session.commit()
+        # 获取当前登录用户
+        user = get_current_user()
+        if not user:
+            return {'error': '请先登录'}, 401
         
-        return {
-            'likes': evaluation.likes,
-            'likes_count': evaluation.likes,
-            'is_liked': True
+        # 获取评价
+        evaluation = Evaluation.query.get_or_404(evaluation_id)
+        
+        # 检查用户是否已经点赞
+        existing_like = Like.query.filter_by(
+            user_id=user.id,
+            target_type='evaluation',
+            target_id=evaluation_id
+        ).first()
+        
+        if existing_like:
+            # 如果已经点赞，则取消点赞
+            db.session.delete(existing_like)
+            db.session.commit()
+            is_liked = False
+        else:
+            # 如果未点赞，则添加点赞
+            new_like = Like(
+                user_id=user.id,
+                target_type='evaluation',
+                target_id=evaluation_id
+            )
+            db.session.add(new_like)
+            db.session.commit()
+            is_liked = True
+        
+        # 获取点赞数量
+        likes_count = Like.query.filter_by(
+            target_type='evaluation',
+            target_id=evaluation_id
+        ).count()
+        
+        return { 
+            'message': '操作成功',
+            'likes_count': likes_count,
+            'is_liked': is_liked
         }, 200
 
 # 注册路由

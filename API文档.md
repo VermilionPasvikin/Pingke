@@ -22,9 +22,11 @@
 
 ### 基础URL
 
-开发环境：`http://localhost:5000/api`
+开发环境：`http://localhost:5001`
 
-生产环境：`https://api.pingke.edu.cn/api`
+生产环境：`https://api.pingke.edu.cn`
+
+**注意：** 前端代码中通过request.js自动添加了`/api`前缀，因此实际API调用路径会被转换为`http://localhost:5001/api/{endpoint}`或`https://api.pingke.edu.cn/api/{endpoint}`
 
 ## API规范
 
@@ -82,36 +84,29 @@ Authorization: Bearer {token}
 
 ## 认证方式
 
-目前系统使用简单的用户标识进行区分，未来将升级为JWT认证机制。
+系统使用 JWT (JSON Web Token) 进行认证。用户通过微信登录后，后端会生成一个 JWT token，前端需要在后续请求的 Authorization 头中携带该 token。
 
-### 当前认证方式
-
-在请求中通过`user_id`参数标识用户身份。此方式仅用于区分不同用户，不进行严格的身份验证。
-
-## 课程相关API
-
-### 1. 获取课程列表
-
-#### 请求信息
-
-- **URL**: `/courses`
-- **方法**: `GET`
-- **功能**: 获取课程列表，支持筛选和分页
-- **是否需要认证**: 否
-
-#### 请求参数
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| department | string | 否 | 学院筛选条件 |
-| semester | string | 否 | 学期筛选条件 |
-| page | integer | 否 | 页码，默认1 |
-| per_page | integer | 否 | 每页数量，默认20 |
-
-#### 示例请求
+**请求头示例**：
 
 ```
-GET /api/courses?department=计算机学院&semester=2023-2024-1&page=1&per_page=20
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### 认证相关 API
+
+#### 1. 微信登录
+
+- **URL**: `/api/auth/wechat-login`
+- **方法**: `POST`
+- **功能**: 通过微信 code 获取 openid 并创建/查找用户，生成 JWT token
+- **是否需要认证**: 否
+
+#### 请求体
+
+```json
+{
+  "code": "微信登录code"
+}
 ```
 
 #### 成功响应
@@ -119,38 +114,113 @@ GET /api/courses?department=计算机学院&semester=2023-2024-1&page=1&per_page
 ```json
 {
   "success": true,
-  "message": "获取课程列表成功",
-  "data": [
-    {
+  "message": "登录成功",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
       "id": 1,
-      "course_code": "CS101",
-      "name": "计算机基础",
-      "description": "介绍计算机科学的基本概念和原理",
-      "credit": 3,
-      "semester": "2023-2024-1",
-      "teacher_id": 1,
-      "teacher_name": "张教授",
-      "average_score": 4.5
-    },
-    // 更多课程...
-  ],
-  "meta": {
-    "total": 100,
-    "page": 1,
-    "per_page": 20,
-    "total_pages": 5
+      "openid": "oXz8R5XXXXXXXXXXXXXXXX",
+      "nickname": "微信用户",
+      "avatar_url": "https://thirdwx.qlogo.cn/...",
+      "created_at": "2024-01-15T10:30:00Z"
+    }
   }
-}
-```
+}```
 
-#### 错误响应
+#### 2. 更新用户信息
+
+- **URL**: `/api/users/{user_id}`
+- **方法**: `PUT`
+- **功能**: 更新用户信息
+- **是否需要认证**: 是
+
+#### 请求体
 
 ```json
 {
-  "success": false,
-  "message": "参数错误",
-  "error_code": 400,
-  "detail": "page参数必须为正整数"
+  "nickname": "张三",
+  "avatar_url": "https://thirdwx.qlogo.cn/...",
+  "gender": 1,
+  "student_id": "20200001",
+  "department": "计算机学院"
+}
+```
+
+#### 成功响应
+
+```json
+{
+  "success": true,
+  "message": "更新成功",
+  "data": {
+    "id": 1,
+    "openid": "oXz8R5XXXXXXXXXXXXXXXX",
+    "nickname": "张三",
+    "avatar_url": "https://thirdwx.qlogo.cn/...",
+    "gender": 1,
+    "student_id": "20200001",
+    "department": "计算机学院",
+    "updated_at": "2024-01-15T10:30:00Z"
+  }
+}
+
+## 课程相关API
+
+### 1. 获取课程列表
+
+#### 请求信息
+
+- **URL**: `/api/courses`
+- **方法**: `GET`
+- **功能**: 获取课程列表，支持筛选、排序和分页
+- **是否需要认证**: 否
+
+#### 请求参数
+
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| page | integer | 否 | 页码，默认1 |
+| limit | integer | 否 | 每页数量，默认10 |
+| search | string | 否 | 搜索关键词 |
+| sort | string | 否 | 排序方式，可选值：`score`（按评分）, `created_at`（按创建时间）, `hot`（按热度） |
+| teacher_id | integer | 否 | 教师ID筛选 |
+| department | string | 否 | 学院筛选条件 |
+
+#### 示例请求
+
+```
+GET /api/courses?search=计算机&sort=score&page=1&limit=10
+```
+
+#### 成功响应
+
+```json
+{
+  "success": true,
+  "message": "查询成功",
+  "data": {
+    "courses": [
+      {
+        "id": 1,
+        "course_code": "CS101",
+        "name": "数据结构",
+        "description": "介绍数据结构基本概念和算法",
+        "credit": 3,
+        "semester": "2024春",
+        "teacher": {
+          "id": 1,
+          "name": "张三",
+          "department": "计算机学院",
+          "title": "教授"
+        },
+        "average_score": 4.5,
+        "evaluation_count": 20
+      }
+    ],
+    "total": 100,
+    "page": 1,
+    "limit": 10
+  }
 }
 ```
 
@@ -158,16 +228,16 @@ GET /api/courses?department=计算机学院&semester=2023-2024-1&page=1&per_page
 
 #### 请求信息
 
-- **URL**: `/courses/{id}`
+- **URL**: `/api/courses/{course_id}`
 - **方法**: `GET`
-- **功能**: 获取课程详细信息
+- **功能**: 获取课程详细信息，包含评分统计
 - **是否需要认证**: 否
 
 #### 路径参数
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
-| id | integer | 是 | 课程ID |
+| course_id | integer | 是 | 课程ID |
 
 #### 示例请求
 
@@ -180,63 +250,210 @@ GET /api/courses/1
 ```json
 {
   "success": true,
-  "message": "获取课程详情成功",
+  "message": "查询成功",
   "data": {
     "id": 1,
     "course_code": "CS101",
-    "name": "计算机基础",
-    "description": "介绍计算机科学的基本概念和原理",
+    "name": "数据结构",
+    "description": "介绍数据结构基本概念和算法",
     "credit": 3,
-    "semester": "2023-2024-1",
+    "semester": "2024春",
     "teacher": {
       "id": 1,
-      "name": "张教授",
+      "name": "张三",
       "department": "计算机学院",
-      "title": "教授",
-      "introduction": "从事计算机教育多年，研究方向为人工智能"
+      "title": "教授"
     },
-    "evaluation_stats": {
-      "total": 156,
-      "average_score": 4.5,
-      "workload_score": 4.3,
-      "content_score": 4.6,
-      "teaching_score": 4.7
+    "average_score": 4.5,
+    "evaluation_count": 20,
+    "workload_average": 4.2,
+    "content_average": 4.6,
+    "teaching_average": 4.8,
+    "tags_distribution": {
+      "干货": 15,
+      "易懂": 12,
+      "实用": 8
     }
   }
 }
 ```
 
-#### 错误响应
-
-```json
-{
-  "success": false,
-  "message": "课程不存在",
-  "error_code": 404
-}
-```
-
-### 3. 搜索课程
+### 3. 添加课程
 
 #### 请求信息
 
-- **URL**: `/courses/search`
+- **URL**: `/api/courses`
+- **方法**: `POST`
+- **功能**: 添加新课程
+- **是否需要认证**: 是
+
+#### 请求体
+
+```json
+{
+  "course_code": "CS101",
+  "name": "数据结构",
+  "description": "介绍数据结构基本概念和算法",
+  "credit": 3,
+  "semester": "2024春",
+  "teacher_id": 1
+}
+```
+
+#### 成功响应
+
+```json
+{
+  "success": true,
+  "message": "创建成功",
+  "data": {
+    "id": 1,
+    "course_code": "CS101",
+    "name": "数据结构",
+    "description": "介绍数据结构基本概念和算法",
+    "credit": 3,
+    "semester": "2024春",
+    "teacher_id": 1
+  }
+}
+```
+
+### 4. 更新课程
+
+#### 请求信息
+
+- **URL**: `/api/courses/{course_id}`
+- **方法**: `PUT`
+- **功能**: 更新课程信息
+- **是否需要认证**: 是
+
+#### 请求体
+
+```json
+{
+  "course_code": "CS101",
+  "name": "数据结构",
+  "description": "更新后的描述",
+  "credit": 3,
+  "semester": "2024春",
+  "teacher_id": 1
+}
+```
+
+#### 成功响应
+
+```json
+{
+  "success": true,
+  "message": "更新成功",
+  "data": {
+    "id": 1,
+    "course_code": "CS101",
+    "name": "数据结构",
+    "description": "更新后的描述",
+    "credit": 3,
+    "semester": "2024春",
+    "teacher_id": 1
+  }
+}
+```
+
+### 5. 删除课程
+
+#### 请求信息
+
+- **URL**: `/api/courses/{course_id}`
+- **方法**: `DELETE`
+- **功能**: 删除课程
+- **是否需要认证**: 是
+
+#### 成功响应
+
+```json
+{
+  "success": true,
+  "message": "删除成功"
+}
+```
+
+### 6. 获取课程热门标签
+
+#### 请求信息
+
+- **URL**: `/api/courses/popular-tags`
 - **方法**: `GET`
-- **功能**: 根据关键词搜索课程
+- **功能**: 获取课程相关的热门标签
+- **是否需要认证**: 否
+- **参数**:
+  - `limit`: 返回数量，默认10
+
+#### 成功响应
+
+```json
+{
+  "success": true,
+  "message": "查询成功",
+  "data": {
+    "tags": ["干货", "易懂", "实用", "有趣", "深入"]
+  }
+}
+```
+
+### 7. 获取课程评分分布
+
+#### 请求信息
+
+- **URL**: `/api/courses/{course_id}/rating-distribution`
+- **方法**: `GET`
+- **功能**: 获取课程评分分布
+- **是否需要认证**: 否
+
+#### 成功响应
+
+```json
+{
+  "success": true,
+  "message": "查询成功",
+  "data": {
+    "distribution": {
+      "1": 1,
+      "2": 2,
+      "3": 5,
+      "4": 8,
+      "5": 14
+    }
+  }
+}
+```
+
+## 评价相关API
+
+### 1. 获取评价列表
+
+#### 请求信息
+
+- **URL**: `/api/evaluations`
+- **方法**: `GET`
+- **功能**: 获取评价列表，支持分页、筛选和排序
 - **是否需要认证**: 否
 
 #### 请求参数
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
-| keyword | string | 是 | 搜索关键词 |
 | page | integer | 否 | 页码，默认1 |
-| per_page | integer | 否 | 每页数量，默认20 |
+| limit | integer | 否 | 每页数量，默认10 |
+| course_id | integer | 否 | 课程ID筛选 |
+| user_id | integer | 否 | 用户ID筛选 |
+| sort | string | 否 | 排序方式，可选值：`score`（按评分）, `created_at`（按创建时间）, `likes`（按点赞数） |
+| min_score | integer | 否 | 最低评分筛选 |
+| max_score | integer | 否 | 最高评分筛选 |
+| tags | string | 否 | 标签筛选（逗号分隔） |
 
 #### 示例请求
 
 ```
-GET /api/courses/search?keyword=计算机&page=1&per_page=20
+GET /api/evaluations?course_id=1&sort=likes&page=1&limit=10
 ```
 
 #### 成功响应
@@ -244,91 +461,124 @@ GET /api/courses/search?keyword=计算机&page=1&per_page=20
 ```json
 {
   "success": true,
-  "message": "搜索成功",
-  "data": [
-    {
-      "id": 1,
-      "course_code": "CS101",
-      "name": "计算机基础",
-      "teacher_name": "张教授",
-      "average_score": 4.5
-    },
-    // 更多搜索结果...
-  ],
-  "meta": {
-    "total": 10,
+  "message": "查询成功",
+  "data": {
+    "evaluations": [
+      {
+        "id": 1,
+        "course_id": 1,
+        "user": {
+          "id": 1,
+          "nickname": "张三",
+          "avatar_url": "https://thirdwx.qlogo.cn/..."
+        },
+        "score": 5,
+        "workload_score": 4,
+        "content_score": 5,
+        "teaching_score": 5,
+        "tags": "干货,易懂",
+        "comment": "老师讲得非常好",
+        "likes": 10,
+        "created_at": "2024-01-15T10:30:00Z"
+      }
+    ],
+    "total": 50,
     "page": 1,
-    "per_page": 20,
-    "total_pages": 1
+    "limit": 10
   }
 }
 ```
 
-#### 错误响应
-
-```json
-{
-  "success": false,
-  "message": "搜索关键词不能为空",
-  "error_code": 400
-}
-```
-
-## 评价相关API
-
-### 1. 提交评价
+### 2. 获取单个评价详情
 
 #### 请求信息
 
-- **URL**: `/courses/{course_id}/evaluations`
-- **方法**: `POST`
-- **功能**: 提交课程评价
-- **是否需要认证**: 是（需要user_id）
+- **URL**: `/api/evaluations/{evaluation_id}`
+- **方法**: `GET`
+- **功能**: 获取单个评价的详细信息
+- **是否需要认证**: 否
 
 #### 路径参数
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
-| course_id | integer | 是 | 课程ID |
+| evaluation_id | integer | 是 | 评价ID |
+
+#### 示例请求
+
+```
+GET /api/evaluations/1
+```
+
+#### 成功响应
+
+```json
+{
+  "success": true,
+  "message": "查询成功",
+  "data": {
+    "id": 1,
+    "course_id": 1,
+    "course": {
+      "id": 1,
+      "name": "数据结构",
+      "course_code": "CS101"
+    },
+    "user": {
+      "id": 1,
+      "nickname": "张三",
+      "avatar_url": "https://thirdwx.qlogo.cn/..."
+    },
+    "score": 5,
+    "workload_score": 4,
+    "content_score": 5,
+    "teaching_score": 5,
+    "tags": "干货,易懂",
+    "comment": "老师讲得非常好",
+    "likes": 10,
+    "created_at": "2024-01-15T10:30:00Z",
+    "is_liked": false
+  }
+}
+```
+
+### 3. 添加评价
+
+#### 请求信息
+
+- **URL**: `/api/evaluations`
+- **方法**: `POST`
+- **功能**: 添加新评价
+- **是否需要认证**: 是
 
 #### 请求体
 
 ```json
 {
-  "user_id": "string",
+  "course_id": 1,
   "score": 5,
   "workload_score": 4,
   "content_score": 5,
   "teaching_score": 5,
-  "tags": ["标签1", "标签2"],
-  "comment": "评价内容"
+  "tags": "干货,易懂",
+  "comment": "老师讲得非常好"
 }
 ```
-
-| 字段名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| user_id | string | 是 | 用户标识 |
-| score | integer | 是 | 总评分（1-5分） |
-| workload_score | integer | 是 | 工作量评分（1-5分） |
-| content_score | integer | 是 | 内容评分（1-5分） |
-| teaching_score | integer | 是 | 教学评分（1-5分） |
-| tags | array | 否 | 评价标签列表 |
-| comment | string | 否 | 评价内容 |
 
 #### 示例请求
 
 ```
-POST /api/courses/1/evaluations
+POST /api/evaluations
 Content-Type: application/json
 
 {
-  "user_id": "user123",
+  "course_id": 1,
   "score": 5,
   "workload_score": 4,
   "content_score": 5,
   "teaching_score": 5,
-  "tags": ["深入浅出", "案例丰富"],
-  "comment": "这是一门非常好的课程，老师讲解清晰，内容充实。"
+  "tags": "干货,易懂",
+  "comment": "老师讲得非常好"
 }
 ```
 
@@ -337,19 +587,19 @@ Content-Type: application/json
 ```json
 {
   "success": true,
-  "message": "评价提交成功",
+  "message": "创建成功",
   "data": {
     "id": 1,
     "course_id": 1,
-    "user_id": "user123",
+    "user_id": 1,
     "score": 5,
     "workload_score": 4,
     "content_score": 5,
     "teaching_score": 5,
-    "tags": ["深入浅出", "案例丰富"],
-    "comment": "这是一门非常好的课程，老师讲解清晰，内容充实。",
-    "created_at": "2023-11-01T12:00:00Z",
-    "likes": 0
+    "tags": "干货,易懂",
+    "comment": "老师讲得非常好",
+    "likes": 0,
+    "created_at": "2024-01-15T10:30:00Z"
   }
 }
 ```
@@ -365,33 +615,26 @@ Content-Type: application/json
 }
 ```
 
-### 2. 获取课程评价列表
+### 4. 更新评价
 
 #### 请求信息
 
-- **URL**: `/courses/{course_id}/evaluations`
-- **方法**: `GET`
-- **功能**: 获取课程的评价列表
-- **是否需要认证**: 否
+- **URL**: `/api/evaluations/{evaluation_id}`
+- **方法**: `PUT`
+- **功能**: 更新评价信息
+- **是否需要认证**: 是
 
-#### 路径参数
+#### 请求体
 
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| course_id | integer | 是 | 课程ID |
-
-#### 请求参数
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| page | integer | 否 | 页码，默认1 |
-| per_page | integer | 否 | 每页数量，默认20 |
-| sort | string | 否 | 排序方式（latest/earliest/highest/lowest），默认latest |
-
-#### 示例请求
-
-```
-GET /api/courses/1/evaluations?page=1&per_page=20&sort=highest
+```json
+{
+  "score": 5,
+  "workload_score": 4,
+  "content_score": 5,
+  "teaching_score": 5,
+  "tags": "干货,易懂",
+  "comment": "更新后的评论内容"
+}
 ```
 
 #### 成功响应
@@ -399,50 +642,49 @@ GET /api/courses/1/evaluations?page=1&per_page=20&sort=highest
 ```json
 {
   "success": true,
-  "message": "获取评价列表成功",
-  "data": [
-    {
-      "id": 1,
-      "user_id": "user123",
-      "score": 5,
-      "workload_score": 4,
-      "content_score": 5,
-      "teaching_score": 5,
-      "tags": ["深入浅出", "案例丰富"],
-      "comment": "这是一门非常好的课程，老师讲解清晰，内容充实。",
-      "created_at": "2023-11-01T12:00:00Z",
-      "likes": 10
-    },
-    // 更多评价...
-  ],
-  "meta": {
-    "total": 156,
-    "page": 1,
-    "per_page": 20,
-    "total_pages": 8,
-    "sort": "highest"
+  "message": "更新成功",
+  "data": {
+    "id": 1,
+    "course_id": 1,
+    "user_id": 1,
+    "score": 5,
+    "workload_score": 4,
+    "content_score": 5,
+    "teaching_score": 5,
+    "tags": "干货,易懂",
+    "comment": "更新后的评论内容",
+    "likes": 10,
+    "created_at": "2024-01-15T10:30:00Z"
   }
 }
 ```
 
-#### 错误响应
-
-```json
-{
-  "success": false,
-  "message": "课程不存在",
-  "error_code": 404
-}
-```
-
-### 3. 点赞评价
+### 5. 删除评价
 
 #### 请求信息
 
-- **URL**: `/evaluations/{evaluation_id}/like`
+- **URL**: `/api/evaluations/{evaluation_id}`
+- **方法**: `DELETE`
+- **功能**: 删除评价
+- **是否需要认证**: 是
+
+#### 成功响应
+
+```json
+{
+  "success": true,
+  "message": "删除成功"
+}
+```
+
+### 6. 点赞/取消点赞评价
+
+#### 请求信息
+
+- **URL**: `/api/evaluations/{evaluation_id}/like`
 - **方法**: `POST`
 - **功能**: 点赞或取消点赞评价
-- **是否需要认证**: 是（需要user_id）
+- **是否需要认证**: 是
 
 #### 路径参数
 
@@ -450,23 +692,10 @@ GET /api/courses/1/evaluations?page=1&per_page=20&sort=highest
 |--------|------|------|------|
 | evaluation_id | integer | 是 | 评价ID |
 
-#### 请求体
-
-```json
-{
-  "user_id": "string"
-}
-```
-
 #### 示例请求
 
 ```
 POST /api/evaluations/1/like
-Content-Type: application/json
-
-{
-  "user_id": "user456"
-}
 ```
 
 #### 成功响应
@@ -474,9 +703,8 @@ Content-Type: application/json
 ```json
 {
   "success": true,
-  "message": "点赞成功",
+  "message": "操作成功",
   "data": {
-    "evaluation_id": 1,
     "likes": 11,
     "liked": true
   }
@@ -493,35 +721,30 @@ Content-Type: application/json
 }
 ```
 
-## 讨论相关API
+## 评论相关API
 
-### 1. 获取课程讨论列表
+### 1. 获取评论列表
 
 #### 请求信息
 
-- **URL**: `/courses/{course_id}/comments`
+- **URL**: `/api/comments`
 - **方法**: `GET`
-- **功能**: 获取课程的讨论列表
+- **功能**: 获取评论列表，支持分页和筛选
 - **是否需要认证**: 否
-
-#### 路径参数
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| course_id | integer | 是 | 课程ID |
 
 #### 请求参数
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
 | page | integer | 否 | 页码，默认1 |
-| per_page | integer | 否 | 每页数量，默认20 |
-| sort | string | 否 | 排序方式（latest/earliest/hottest），默认latest |
+| limit | integer | 否 | 每页数量，默认10 |
+| course_id | integer | 否 | 课程ID筛选 |
+| parent_id | integer | 否 | 父评论ID筛选（用于获取回复） |
 
 #### 示例请求
 
 ```
-GET /api/courses/1/comments?page=1&per_page=20&sort=latest
+GET /api/comments?course_id=1&page=1&limit=10
 ```
 
 #### 成功响应
@@ -529,89 +752,59 @@ GET /api/courses/1/comments?page=1&per_page=20&sort=latest
 ```json
 {
   "success": true,
-  "message": "获取讨论列表成功",
-  "data": [
-    {
-      "id": 1,
-      "user_id": "user123",
-      "user_name": "学生A",
-      "content": "这门课的作业难度怎么样？",
-      "created_at": "2023-11-01T10:00:00Z",
-      "likes": 5,
-      "replies_count": 2,
-      "replies": [
-        {
-          "id": 2,
-          "user_id": "user456",
-          "user_name": "学生B",
-          "content": "作业难度适中，认真学的话没问题。",
-          "created_at": "2023-11-01T11:00:00Z",
-          "likes": 3
-        }
-      ]
-    },
-    // 更多讨论...
-  ],
-  "meta": {
-    "total": 50,
+  "message": "查询成功",
+  "data": {
+    "comments": [
+      {
+        "id": 1,
+        "course_id": 1,
+        "user": {
+          "id": 1,
+          "nickname": "张三",
+          "avatar_url": "https://thirdwx.qlogo.cn/..."
+        },
+        "content": "请问这门课难不难？",
+        "likes": 5,
+        "created_at": "2024-01-15T10:30:00Z",
+        "replies_count": 2
+      }
+    ],
+    "total": 30,
     "page": 1,
-    "per_page": 20,
-    "total_pages": 3
+    "limit": 10
   }
 }
 ```
 
-#### 错误响应
-
-```json
-{
-  "success": false,
-  "message": "课程不存在",
-  "error_code": 404
-}
-```
-
-### 2. 发表讨论
+### 2. 添加评论
 
 #### 请求信息
 
-- **URL**: `/courses/{course_id}/comments`
+- **URL**: `/api/comments`
 - **方法**: `POST`
-- **功能**: 在课程讨论区发表内容
-- **是否需要认证**: 是（需要user_id）
-
-#### 路径参数
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| course_id | integer | 是 | 课程ID |
+- **功能**: 添加新评论或回复
+- **是否需要认证**: 是
 
 #### 请求体
 
 ```json
 {
-  "user_id": "string",
-  "user_name": "string",
-  "content": "string"
+  "course_id": 1,
+  "content": "请问这门课难不难？",
+  "parent_id": null  // 回复时填写父评论ID
 }
 ```
-
-| 字段名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| user_id | string | 是 | 用户标识 |
-| user_name | string | 是 | 用户昵称 |
-| content | string | 是 | 讨论内容 |
 
 #### 示例请求
 
 ```
-POST /api/courses/1/comments
+POST /api/comments
 Content-Type: application/json
 
 {
-  "user_id": "user123",
-  "user_name": "学生A",
-  "content": "想请教一下期末考核的形式是什么？"
+  "course_id": 1,
+  "content": "请问这门课难不难？",
+  "parent_id": null
 }
 ```
 
@@ -620,16 +813,14 @@ Content-Type: application/json
 ```json
 {
   "success": true,
-  "message": "讨论发表成功",
+  "message": "创建成功",
   "data": {
     "id": 1,
     "course_id": 1,
-    "user_id": "user123",
-    "user_name": "学生A",
-    "content": "想请教一下期末考核的形式是什么？",
-    "created_at": "2023-11-01T13:00:00Z",
+    "user_id": 1,
+    "content": "请问这门课难不难？",
     "likes": 0,
-    "replies_count": 0
+    "created_at": "2024-01-15T10:30:00Z"
   }
 }
 ```
@@ -644,41 +835,20 @@ Content-Type: application/json
 }
 ```
 
-### 3. 回复讨论
+### 3. 更新评论
 
 #### 请求信息
 
-- **URL**: `/comments/{comment_id}/replies`
-- **方法**: `POST`
-- **功能**: 回复现有讨论
-- **是否需要认证**: 是（需要user_id）
-
-#### 路径参数
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| comment_id | integer | 是 | 父评论ID |
+- **URL**: `/api/comments/{comment_id}`
+- **方法**: `PUT`
+- **功能**: 更新评论内容
+- **是否需要认证**: 是
 
 #### 请求体
 
 ```json
 {
-  "user_id": "string",
-  "user_name": "string",
-  "content": "string"
-}
-```
-
-#### 示例请求
-
-```
-POST /api/comments/1/replies
-Content-Type: application/json
-
-{
-  "user_id": "user456",
-  "user_name": "学生B",
-  "content": "期末主要是闭卷考试，还有小组作业。"
+  "content": "更新后的评论内容"
 }
 ```
 
@@ -687,120 +857,96 @@ Content-Type: application/json
 ```json
 {
   "success": true,
-  "message": "回复成功",
+  "message": "更新成功",
   "data": {
-    "id": 2,
+    "id": 1,
     "course_id": 1,
-    "parent_id": 1,
-    "user_id": "user456",
-    "user_name": "学生B",
-    "content": "期末主要是闭卷考试，还有小组作业。",
-    "created_at": "2023-11-01T14:00:00Z",
-    "likes": 0
+    "user_id": 1,
+    "content": "更新后的评论内容",
+    "likes": 5,
+    "updated_at": "2024-01-15T10:30:00Z"
   }
 }
 ```
 
-#### 错误响应
-
-```json
-{
-  "success": false,
-  "message": "父评论不存在",
-  "error_code": 404
-}
-```
-
-### 4. 点赞讨论
+### 4. 删除评论
 
 #### 请求信息
 
-- **URL**: `/comments/{comment_id}/like`
-- **方法**: `POST`
-- **功能**: 点赞或取消点赞讨论
-- **是否需要认证**: 是（需要user_id）
-
-#### 路径参数
-
-| 参数名 | 类型 | 必填 | 描述 |
-|--------|------|------|------|
-| comment_id | integer | 是 | 评论ID |
-
-#### 请求体
-
-```json
-{
-  "user_id": "string"
-}
-```
+- **URL**: `/api/comments/{comment_id}`
+- **方法**: `DELETE`
+- **功能**: 删除评论
+- **是否需要认证**: 是
 
 #### 成功响应
 
 ```json
 {
   "success": true,
-  "message": "点赞成功",
-  "data": {
-    "comment_id": 1,
-    "likes": 6,
-    "liked": true
-  }
+  "message": "删除成功"
 }
 ```
 
 ## 排行榜相关API
 
-### 1. 获取课程排行榜
+### 1. 获取统一排行榜接口
 
 #### 请求信息
 
-- **URL**: `/rankings/courses`
+- **URL**: `/api/rankings`
 - **方法**: `GET`
-- **功能**: 获取课程排行榜
+- **功能**: 根据type参数获取不同类型的排行榜数据（课程、教师、标签、学院）
 - **是否需要认证**: 否
 
 #### 请求参数
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
-| category | string | 否 | 排名分类（overall/workload/content/teaching），默认overall |
-| limit | integer | 否 | 返回数量，默认20 |
+| type | string | 否 | 排行榜类型（courses/teachers/tags/departments），默认courses |
+| semester | string | 否 | 学期筛选（仅courses类型有效） |
+| department | string | 否 | 学院筛选 |
+| limit | integer | 否 | 返回数量，默认10 |
 
 #### 示例请求
 
 ```
-GET /api/rankings/courses?category=overall&limit=20
+GET /api/rankings?type=courses&limit=10
+GET /api/rankings?type=tags&limit=20
 ```
 
-#### 成功响应
+#### 成功响应（courses类型）
 
 ```json
 {
-  "success": true,
-  "message": "获取排行榜成功",
-  "data": [
+  "list": [
     {
-      "course_id": 1,
-      "course_name": "计算机基础",
-      "course_code": "CS101",
-      "teacher_name": "张教授",
+      "id": 1,
+      "name": "计算机基础",
+      "code": "CS101",
+      "teacher": "张教授",
       "score": 4.8,
-      "rank": 1
-    },
-    {
-      "course_id": 2,
-      "course_name": "数据结构",
-      "course_code": "CS201",
-      "teacher_name": "李教授",
-      "score": 4.7,
-      "rank": 2
+      "count": 50
     },
     // 更多排名...
-  ],
-  "meta": {
-    "category": "overall",
-    "limit": 20
-  }
+  ]
+}
+```
+
+#### 成功响应（tags类型）
+
+```json
+{
+  "list": [
+    {
+      "name": "给分好",
+      "count": 156
+    },
+    {
+      "name": "教学认真",
+      "count": 145
+    },
+    // 更多排名...
+  ]
 }
 ```
 
@@ -808,10 +954,156 @@ GET /api/rankings/courses?category=overall&limit=20
 
 ```json
 {
-  "success": false,
-  "message": "无效的分类",
-  "error_code": 400,
-  "detail": "category参数必须是overall、workload、content或teaching之一"
+  "message": "无效的排行榜类型"
+}
+
+### 2. 获取课程排行榜（详细版）
+
+#### 请求信息
+
+- **URL**: `/api/rankings/courses`
+- **方法**: `GET`
+- **功能**: 获取详细的课程排行榜数据
+- **是否需要认证**: 否
+
+#### 请求参数
+
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| semester | string | 否 | 学期筛选 |
+| department | string | 否 | 学院筛选 |
+| limit | integer | 否 | 返回数量，默认10 |
+| time_range | string | 否 | 时间范围（week/month/year/all），默认all |
+
+#### 示例请求
+
+```
+GET /api/rankings/courses?department=计算机学院&limit=20&time_range=month
+```
+
+#### 成功响应
+
+```json
+{
+  "rankings": [
+    {
+      "course_id": 1,
+      "course_name": "计算机基础",
+      "course_code": "CS101",
+      "teacher_name": "张教授",
+      "avg_score": 4.8,
+      "evaluation_count": 50,
+      "rank": 1
+    },
+    // 更多排名...
+  ]
+}
+
+### 3. 获取教师排行榜
+
+#### 请求信息
+
+- **URL**: `/api/rankings/teachers`
+- **方法**: `GET`
+- **功能**: 获取教师排行榜
+- **是否需要认证**: 否
+
+#### 请求参数
+
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| department | string | 否 | 学院筛选 |
+| limit | integer | 否 | 返回数量，默认10 |
+| time_range | string | 否 | 时间范围（week/month/year/all），默认all |
+
+#### 成功响应
+
+```json
+{
+  "rankings": [
+    {
+      "teacher_id": 1,
+      "teacher_name": "张教授",
+      "department": "计算机学院",
+      "title": "教授",
+      "avg_score": 4.8,
+      "evaluation_count": 120,
+      "course_count": 5,
+      "rank": 1
+    },
+    // 更多排名...
+  ]
+}
+
+### 4. 获取标签排行榜
+
+#### 请求信息
+
+- **URL**: `/api/rankings/tags`
+- **方法**: `GET`
+- **功能**: 获取热门标签排行榜
+- **是否需要认证**: 否
+
+#### 请求参数
+
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| limit | integer | 否 | 返回数量，默认20 |
+
+#### 示例请求
+
+```
+GET /api/rankings/tags?limit=10
+```
+
+#### 成功响应
+
+```json
+{
+  "rankings": [
+    {
+      "tag": "给分好",
+      "count": 156,
+      "rank": 1
+    },
+    {
+      "tag": "教学认真",
+      "count": 145,
+      "rank": 2
+    },
+    // 更多排名...
+  ]
+}
+
+### 5. 获取学院排行榜
+
+#### 请求信息
+
+- **URL**: `/api/rankings/departments`
+- **方法**: `GET`
+- **功能**: 获取各学院课程平均评分排行榜
+- **是否需要认证**: 否
+
+#### 请求参数
+
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| limit | integer | 否 | 返回数量，默认10 |
+
+#### 成功响应
+
+```json
+{
+  "rankings": [
+    {
+      "department": "计算机学院",
+      "avg_score": 4.5,
+      "course_count": 50,
+      "evaluation_count": 1200,
+      "rank": 1
+    },
+    // 更多排名...
+  ]
 }
 ```
 
@@ -828,6 +1120,106 @@ GET /api/rankings/courses?category=overall&limit=20
 | 409 | 资源冲突（如重复评价） |
 | 500 | 服务器内部错误 |
 | 503 | 服务暂时不可用 |
+
+## 数据模型
+
+### 用户表 (users)
+| 字段名 | 数据类型 | 约束 | 描述 |
+| :--- | :--- | :--- | :--- |
+| `id` | `VARCHAR(50)` | `PRIMARY KEY` | 用户唯一标识，使用微信openid |
+| `nickname` | `VARCHAR(100)` | `NOT NULL` | 用户昵称 |
+| `avatar_url` | `VARCHAR(255)` | | 用户头像URL |
+| `gender` | `INTEGER` | | 性别 (0:未知, 1:男, 2:女) |
+| `student_id` | `VARCHAR(20)` | | 学号 |
+| `department` | `VARCHAR(100)` | | 学院 |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP, INDEX` | 创建时间 |
+| `updated_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` | 更新时间 |
+
+### 教师表 (teachers)
+| 字段名 | 数据类型 | 约束 | 描述 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 教师ID |
+| `name` | `VARCHAR(50)` | `NOT NULL` | 教师姓名 |
+| `department` | `VARCHAR(100)` | `NOT NULL, INDEX` | 所属学院 |
+| `title` | `VARCHAR(50)` | | 职称 |
+| `bio` | `TEXT` | | 简介 |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP, INDEX` | 创建时间 |
+| `updated_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` | 更新时间 |
+
+### 用户表 (User)
+
+| 字段名 | 数据类型 | 约束 | 描述 |
+|--------|----------|------|------|
+| id | INTEGER | 主键，自增 | 用户ID |
+| openid | VARCHAR(100) | 唯一，非空，索引 | 微信openid |
+| nickname | VARCHAR(100) | 可选 | 用户昵称 |
+| avatar_url | VARCHAR(500) | 可选 | 用户头像URL |
+| created_at | TIMESTAMP | 默认CURRENT_TIMESTAMP | 创建时间 |
+| updated_at | TIMESTAMP | 默认CURRENT_TIMESTAMP | 更新时间 |
+
+### 教师表 (Teacher)
+
+| 字段名 | 数据类型 | 约束 | 描述 |
+|--------|----------|------|------|
+| id | INTEGER | 主键，自增 | 教师ID |
+| name | VARCHAR(100) | 非空 | 教师姓名 |
+| department | VARCHAR(100) | 可选 | 所属学院 |
+| title | VARCHAR(100) | 可选 | 职称 |
+| introduction | TEXT | 可选 | 教师介绍 |
+| created_at | TIMESTAMP | 默认CURRENT_TIMESTAMP | 创建时间 |
+| updated_at | TIMESTAMP | 默认CURRENT_TIMESTAMP | 更新时间 |
+
+### 课程表 (courses)
+| 字段名 | 数据类型 | 约束 | 描述 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 课程ID |
+| `course_code` | `VARCHAR(20)` | `NOT NULL, UNIQUE, INDEX` | 课程代码 |
+| `name` | `VARCHAR(100)` | `NOT NULL` | 课程名称 |
+| `description` | `TEXT` | | 课程描述 |
+| `credit` | `FLOAT` | `NOT NULL` | 学分 |
+| `semester` | `VARCHAR(20)` | | 学期 |
+| `teacher_id` | `INTEGER` | `NOT NULL, INDEX, FOREIGN KEY REFERENCES teachers(id)` | 教师ID |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP, INDEX` | 创建时间 |
+| `updated_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` | 更新时间 |
+
+### 评价表 (evaluations)
+| 字段名 | 数据类型 | 约束 | 描述 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 评价ID |
+| `course_id` | `INTEGER` | `NOT NULL, INDEX, FOREIGN KEY REFERENCES courses(id)` | 课程ID |
+| `user_id` | `VARCHAR(50)` | `NOT NULL, INDEX, FOREIGN KEY REFERENCES users(id)` | 用户ID |
+| `score` | `FLOAT` | `NOT NULL, INDEX` | 总体评分 |
+| `workload_score` | `FLOAT` | `NOT NULL` | 工作量评分 |
+| `content_score` | `FLOAT` | `NOT NULL` | 内容评分 |
+| `teaching_score` | `FLOAT` | `NOT NULL` | 教学评分 |
+| `tags` | `VARCHAR(255)` | | 评价标签 |
+| `comment` | `TEXT` | | 评价内容 |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP, INDEX` | 创建时间 |
+| `updated_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP` | 更新时间 |
+| | | `UNIQUE(course_id, user_id)` | 确保每个用户对每门课程只能评价一次 |
+
+### 评论表 (Comment)
+
+| 字段名 | 数据类型 | 约束 | 描述 |
+|--------|----------|------|------|
+| id | INTEGER | 主键，自增 | 评论ID |
+| course_id | INTEGER | 外键，关联Course表，非空 | 课程ID |
+| user_id | INTEGER | 外键，关联User表，非空 | 用户ID |
+| user_name | VARCHAR(100) | 可选 | 用户昵称（兼容旧数据） |
+| content | TEXT | 非空 | 评论内容 |
+| parent_id | INTEGER | 外键，自关联Comment表，可选 | 父评论ID（用于回复） |
+| created_at | TIMESTAMP | 默认CURRENT_TIMESTAMP | 创建时间 |
+| updated_at | TIMESTAMP | 默认CURRENT_TIMESTAMP | 更新时间 |
+
+### 点赞表 (likes)
+| 字段名 | 数据类型 | 约束 | 描述 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 点赞ID |
+| `target_id` | `INTEGER` | `NOT NULL, INDEX` | 目标ID（评价或评论ID） |
+| `target_type` | `VARCHAR(20)` | `NOT NULL, INDEX` | 目标类型（'evaluation'或'comment'） |
+| `user_id` | `VARCHAR(50)` | `NOT NULL, INDEX, FOREIGN KEY REFERENCES users(id)` | 用户ID |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP, INDEX` | 创建时间 |
+| | | `UNIQUE(target_id, target_type, user_id)` | 确保每个用户对每个目标只能点赞一次
 
 ---
 

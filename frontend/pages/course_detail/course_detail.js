@@ -243,9 +243,15 @@ Page({
     };
     this.setData({ recentEvaluations: updatedEvaluations });
     
-    wx.request({
+    // 获取认证头
+  const authHeader = app.getAuthHeader();
+  
+  wx.request({
       url: `${app.globalData.apiBaseUrl}/evaluations/${evaluationId}/like`,
       method: 'POST',
+      header: {
+        ...authHeader
+      },
       success: (res) => {
         // 重置点赞状态
         this.setLikingState(evaluationId, LIKE_TYPE, false);
@@ -270,11 +276,23 @@ Page({
           console.error('点赞操作失败，状态码:', res.statusCode, '响应:', res.data);
           // 如果失败，回滚本地状态
           this.rollbackEvaluationLike(evaluationId, currentEvaluation);
-          wx.showToast({ 
-            title: `操作失败: ${res.data.message || '未知错误'}`, 
-            icon: 'none',
-            duration: 2000
-          });
+          
+          // 如果是未登录错误，引导用户登录
+          if (res.statusCode === 401) {
+            wx.showToast({ 
+              title: '请先登录', 
+              icon: 'none',
+              duration: 2000
+            });
+            // 重新执行微信登录
+            app.wechatLogin();
+          } else {
+            wx.showToast({ 
+              title: `操作失败: ${res.data.message || '未知错误'}`, 
+              icon: 'none',
+              duration: 2000
+            });
+          }
         }
       },
       fail: (err) => {
@@ -345,11 +363,15 @@ Page({
     this.setData({ recentComments: updatedComments });
     
     // 使用封装的request方法发送请求
+    // 获取认证头
+    const authHeader = app.getAuthHeader();
+    
     wx.request({
       url: `${app.globalData.apiBaseUrl}/comments/${commentId}/like`,
       method: 'POST',
       header: {
-        'content-type': 'application/json'
+        'content-type': 'application/json',
+        ...authHeader
       },
       success: (res) => {
         // 重置点赞状态
@@ -376,11 +398,23 @@ Page({
           console.error('点赞操作失败，状态码:', res.statusCode, '响应:', res.data);
           // 如果失败，回滚本地状态
           this.rollbackCommentLike(commentId, currentComment);
-          wx.showToast({ 
-            title: `操作失败: ${res.data.message || '未知错误'}`, 
-            icon: 'none',
-            duration: 2000
-          });
+          
+          // 如果是未登录错误，引导用户登录
+          if (res.statusCode === 401) {
+            wx.showToast({ 
+              title: '请先登录', 
+              icon: 'none',
+              duration: 2000
+            });
+            // 重新执行微信登录
+            app.wechatLogin();
+          } else {
+            wx.showToast({ 
+              title: `操作失败: ${res.data.message || '未知错误'}`, 
+              icon: 'none',
+              duration: 2000
+            });
+          }
         }
       },
       fail: (err) => {

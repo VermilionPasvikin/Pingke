@@ -10,12 +10,12 @@ Page({
     courses: [],
     searchQuery: '',
     semesterIndex: 0,
-    semesterOptions: ['全部学期', '2024春季', '2023秋季', '2023春季'],
+    semesterOptions: ['全部学期', '2024春', '2023秋', '2023春', '2022秋'],
     sortIndex: 0,
     sortOptions: ['综合排序', '评分最高', '评分最低', '评论最多'],
     selectedDepartments: [],
     // 添加学院列表数据源
-    departmentOptions: ['全部学院', '计算机与人工智能学院', '数学与统计学院', '轻工业学院', '外国语学院', '经济管理学院', '商学院'],
+    departmentOptions: ['全部学院', '计算机学院', '商学院', '文学院', '理学院', '工学院'],
     page: 1,
     pageSize: 10,
     hasMore: true,
@@ -47,16 +47,18 @@ Page({
     this.setData({ loading: true });
     
     // 准备请求参数
+    const sortIndex = parseInt(this.data.sortIndex);
+    console.log('当前排序索引(数字):', sortIndex);
     const params = {
       page: refresh ? 1 : this.data.page,
       page_size: this.data.pageSize,
-      sort_by: this.data.sortIndex === 0 ? 'default' : 
-               this.data.sortIndex === 1 ? 'score_desc' :
-               this.data.sortIndex === 2 ? 'score_asc' : 'comments_desc'
+      sort_by: sortIndex === 0 ? 'default' : 
+               sortIndex === 1 ? 'score_desc' :
+               sortIndex === 2 ? 'score_asc' : 'comments_desc'
     };
     
     if (this.data.searchQuery) {
-      params.q = this.data.searchQuery;
+      params.keyword = this.data.searchQuery;
     }
     
     if (this.data.semesterIndex > 0) {
@@ -68,11 +70,13 @@ Page({
     }
     
     // 调用API获取课程列表
+    console.log('发起API请求:', `${app.globalData.apiBaseUrl}/courses`, params);
     wx.request({
       url: `${app.globalData.apiBaseUrl}/courses`,
       method: 'GET',
       data: params,
       success: (res) => {
+        console.log('API响应:', res);
         if (res.statusCode === 200) {
           const newCourses = res.data.courses || [];
           const updatedCourses = refresh ? newCourses : [...this.data.courses, ...newCourses];
@@ -82,11 +86,14 @@ Page({
             page: refresh ? 2 : this.data.page + 1,
             hasMore: newCourses.length === this.data.pageSize
           });
+        } else {
+          console.error('API请求失败，状态码:', res.statusCode);
+          wx.showToast({ title: '请求失败: ' + res.statusCode, icon: 'none' });
         }
       },
       fail: (err) => {
         console.error('加载课程失败:', err);
-        wx.showToast({ title: '加载失败', icon: 'none' });
+        wx.showToast({ title: '加载失败: ' + JSON.stringify(err), icon: 'none' });
       },
       complete: () => {
         this.setData({ loading: false });
@@ -125,8 +132,11 @@ Page({
    * 排序方式变更
    */
   onSortChange: function(e) {
+    console.log('排序方式变更:', e.detail.value);
+    // 转换为数字类型
+    const sortIndex = parseInt(e.detail.value);
     this.setData({ 
-      sortIndex: e.detail.value,
+      sortIndex: sortIndex,
       page: 1, 
       hasMore: true 
     });

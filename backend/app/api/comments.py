@@ -1,12 +1,30 @@
-from flask import request
+from flask import request, jsonify
 from flask_restful import Resource
+import jwt
+import os
 from app import db
-from app.models import Comment, Course
+from app.models import Comment, Course, Like, User
 from app.schemas import CommentSchema
 from sqlalchemy import desc
 
 comment_schema = CommentSchema()
 comments_schema = CommentSchema(many=True)
+
+def get_current_user():
+    """从请求头中获取当前用户信息"""
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return None
+    
+    token = auth_header.split(' ')[1]
+    try:
+        secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
+        payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+        user_id = payload.get('user_id')
+        user = User.query.get(user_id)
+        return user
+    except Exception:
+        return None
 
 class CommentsResource(Resource):
     def get(self):
@@ -14,6 +32,9 @@ class CommentsResource(Resource):
         course_id = request.args.get('course_id')
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 20))
+        
+        # 获取当前登录用户
+        user = get_current_user()
         
         # 构建查询，只获取顶级评论（非回复）
         query = Comment.query.filter(Comment.parent_id.is_(None))
@@ -34,6 +55,24 @@ class CommentsResource(Resource):
             comment_data = comment_schema.dump(comment)
             # 计算回复数量
             comment_data['reply_count'] = len(comment.replies)
+            
+            # 获取评论点赞数
+            likes_count = Like.query.filter_by(
+                target_type='comment',
+                target_id=comment.id
+            ).count()
+            comment_data['likes_count'] = likes_count
+            
+            # 检查当前用户是否点赞
+            is_liked = False
+            if user:
+                is_liked = Like.query.filter_by(
+                    user_id=user.id,
+                    target_type='comment',
+                    target_id=comment.id
+                ).first() is not None
+            comment_data['is_liked'] = is_liked
+            
             result.append(comment_data)
         
         return {
@@ -66,11 +105,14 @@ class CommentsResource(Resource):
             if parent_comment.course_id != data['course_id']:
                 return jsonify({'error': 'Parent comment belongs to a different course'}), 400
         
+        # 获取当前登录用户
+        user = get_current_user()
+        
         # 创建评论
         new_comment = Comment(
             course_id=data['course_id'],
-            user_id=data.get('user_id'),
-            user_name=data['user_name'],
+            user_id=user.id if user else None,
+            user_name=user.nickname if user else data.get('user_name', '匿名用户'),
             content=data['content'],
             parent_id=data.get('parent_id')
         )
@@ -79,6 +121,7 @@ class CommentsResource(Resource):
         db.session.commit()
         
         result = comment_schema.dump(new_comment)
+        result['is_liked'] = False  # 新创建的评论默认未点赞
         return jsonify(result), 201
 
 class CommentResource(Resource):
@@ -142,17 +185,47 @@ class CommentRepliesResource(Resource):
 
 class CommentLikeResource(Resource):
     def post(self, comment_id):
-        # 给评论点赞
-        comment = Comment.query.get_or_404(comment_id)
-        comment.likes += 1
-        db.session.commit()
+        # 获取当前登录用户
+        user = get_current_user()
+        if not user:
+            return {'error': '请先登录'}, 401
         
-        # 返回更新后的点赞数和点赞状态
-        # 由于没有实际的用户点赞记录，这里总是返回is_liked=true
+        # 获取评论
+        comment = Comment.query.get_or_404(comment_id)
+        
+        # 检查用户是否已经点赞
+        existing_like = Like.query.filter_by(
+            user_id=user.id,
+            target_type='comment',
+            target_id=comment_id
+        ).first()
+        
+        if existing_like:
+            # 如果已经点赞，则取消点赞
+            db.session.delete(existing_like)
+            db.session.commit()
+            is_liked = False
+        else:
+            # 如果未点赞，则添加点赞
+            new_like = Like(
+                user_id=user.id,
+                target_type='comment',
+                target_id=comment_id
+            )
+            db.session.add(new_like)
+            db.session.commit()
+            is_liked = True
+        
+        # 获取点赞数量
+        likes_count = Like.query.filter_by(
+            target_type='comment',
+            target_id=comment_id
+        ).count()
+        
         return { 
-            'likes': comment.likes,
-            'likes_count': comment.likes,
-            'is_liked': True
+            'message': '操作成功',
+            'likes_count': likes_count,
+            'is_liked': is_liked
         }, 200
 
 # 注册路由

@@ -1,4 +1,9 @@
 <view class="container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
   <!-- 排行榜分类标签 -->
   <view class="tab-bar">
     <view wx:for="{{tabOptions}}" wx:key="index" 
@@ -20,69 +25,81 @@
     </view>
     
     <view class="ranking-list">
-      <block wx:if="{{courseRankings && courseRankings.length > 0}}">
+      <block wx:if="{{!loading && courseRankings && courseRankings.length > 0}}">
         <view wx:for="{{courseRankings}}" wx:key="id" class="ranking-item" bindtap="navigateToCourseDetail" data-id="{{item.id}}">
           <view class="rank-number {{index < 3 ? 'top' + (index + 1) : ''}}">{{index + 1}}</view>
           <view class="ranking-info">
-            <text class="course-name">{{item.name}}</text>
-            <text class="teacher-name">{{item.teacher.name}}</text>
+            <text class="course-name">{{item.name || '未知课程'}}</text>
+            <text class="teacher-name">{{item.teacher ? item.teacher.name : '未知教师'}}</text>
           </view>
           <view class="ranking-score">
-            <text class="score">{{item.avg_score}}</text>
-            <text class="evaluation-count">{{item.evaluation_count}}人评价</text>
+            <text class="score">{{item.avg_score || '--'}}</text>
+            <text class="evaluation-count">{{item.evaluation_count || 0}}人评价</text>
           </view>
         </view>
       </block>
-      <view wx:else class="empty-tip">暂无排行数据</view>
+      <view wx:else class="empty-tip">
+        <text wx:if="{{!loading}}">暂无排行数据</text>
+        <text wx:else>加载中...</text>
+      </view>
     </view>
   </view>
 
   <!-- 教师排行榜 -->
   <view wx:if="{{activeTab === 1}}" class="ranking-content">
     <view class="ranking-list">
-      <block wx:if="{{teacherRankings && teacherRankings.length > 0}}">
+      <block wx:if="{{!loading && teacherRankings && teacherRankings.length > 0}}">
         <view wx:for="{{teacherRankings}}" wx:key="id" class="ranking-item" bindtap="navigateToTeacherDetail" data-id="{{item.id}}">
           <view class="rank-number {{index < 3 ? 'top' + (index + 1) : ''}}">{{index + 1}}</view>
           <view class="ranking-info">
-            <text class="teacher-name">{{item.name}}</text>
-            <text class="department">{{item.department}}</text>
+            <text class="teacher-name">{{item.name || '未知教师'}}</text>
+            <text class="department">{{item.department || '未知学院'}}</text>
           </view>
           <view class="ranking-score">
-            <text class="score">{{item.avg_score}}</text>
-            <text class="course-count">{{item.course_count}}门课程</text>
+            <text class="score">{{item.avg_score || '--'}}</text>
+            <text class="course-count">{{item.course_count || 0}}门课程</text>
           </view>
         </view>
       </block>
-      <view wx:else class="empty-tip">暂无排行数据</view>
+      <view wx:else class="empty-tip">
+        <text wx:if="{{!loading}}">暂无排行数据</text>
+        <text wx:else>加载中...</text>
+      </view>
     </view>
   </view>
 
   <!-- 热门标签 -->
   <view wx:if="{{activeTab === 2}}" class="ranking-content">
     <view class="tags-cloud">
-      <block wx:if="{{tagRankings && tagRankings.length > 0}}">
-        <text wx:for="{{tagRankings}}" wx:key="index" class="tag" style="font-size: {{getTagSize(item[1])}}px" bindtap="searchByTag" data-tag="{{item[0]}}">{{item[0]}} ({{item[1]}})</text>
+      <block wx:if="{{!loading && tagRankings && tagRankings.length > 0}}">
+        <text wx:for="{{tagRankings}}" wx:key="index" class="tag" style="font-size: {{getTagSize(item[1])}}px" bindtap="searchByTag" data-tag="{{item[0]}}">{{item[0] || '无标签'}} ({{item[1] || 0}})</text>
       </block>
-      <view wx:else class="empty-tip">暂无标签数据</view>
+      <view wx:else class="empty-tip">
+        <text wx:if="{{!loading}}">暂无标签数据</text>
+        <text wx:else>加载中...</text>
+      </view>
     </view>
   </view>
 
   <!-- 学院排行榜 -->
   <view wx:if="{{activeTab === 3}}" class="ranking-content">
     <view class="ranking-list">
-      <block wx:if="{{departmentRankings && departmentRankings.length > 0}}">
+      <block wx:if="{{!loading && departmentRankings && departmentRankings.length > 0}}">
         <view wx:for="{{departmentRankings}}" wx:key="index" class="ranking-item">
           <view class="rank-number {{index < 3 ? 'top' + (index + 1) : ''}}">{{index + 1}}</view>
           <view class="ranking-info">
-            <text class="department-name">{{item.department}}</text>
+            <text class="department-name">{{item.department || '未知学院'}}</text>
           </view>
           <view class="ranking-score">
-            <text class="score">{{item.avg_score}}</text>
-            <text class="course-count">{{item.course_count}}门课程</text>
+            <text class="score">{{item.avg_score || '--'}}</text>
+            <text class="course-count">{{item.course_count || 0}}门课程</text>
           </view>
         </view>
       </block>
-      <view wx:else class="empty-tip">暂无排行数据</view>
+      <view wx:else class="empty-tip">
+        <text wx:if="{{!loading}}">暂无排行数据</text>
+        <text wx:else>加载中...</text>
+      </view>
     </view>
   </view>
 </view>

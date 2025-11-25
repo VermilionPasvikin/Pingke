@@ -25,15 +25,15 @@ with app.app_context():
     # 创建课程数据
     courses = [
         Course(course_code='CS101', name='数据结构', description='介绍数据结构基本概念和算法', 
-               credit=3, semester='2024春', teacher_id=1),
+               credit=3, semester='2024春季', teacher_id=1),
         Course(course_code='CS202', name='操作系统', description='学习操作系统原理和实现', 
-               credit=4, semester='2024春', teacher_id=1),
+               credit=4, semester='2024秋季', teacher_id=1),
         Course(course_code='EE303', name='数字电路', description='数字电路设计与应用', 
-               credit=3, semester='2024春', teacher_id=2),
+               credit=3, semester='2023春季', teacher_id=2),
         Course(course_code='MTH404', name='高等数学', description='高等数学基础', 
-               credit=5, semester='2024春', teacher_id=3),
+               credit=5, semester='2023秋季', teacher_id=3),
         Course(course_code='PHY505', name='量子力学', description='量子力学入门', 
-               credit=4, semester='2024春', teacher_id=4)
+               credit=4, semester='2022春季', teacher_id=4)
     ]
     
     # 批量添加并提交课程数据

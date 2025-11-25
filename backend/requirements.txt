@@ -8,3 +8,4 @@ marshmallow==3.14.1
 python-dotenv==0.19.0
 sympy==1.13.1
 pymysql==1.0.2
+cryptography==36.0.2

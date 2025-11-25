@@ -41,7 +41,12 @@ class EvaluationSchema(Schema):
     comment = fields.Str()
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
-    likes = fields.Int(dump_only=True)
+    likes = fields.Method("get_likes_count")
+    
+    def get_likes_count(self, obj):
+        # 计算点赞数量
+        from app.models import Like
+        return Like.query.filter_by(target_type='evaluation', target_id=obj.id).count()
     
     # 嵌套字段
     course = fields.Nested(CourseSchema, only=['id', 'name', 'course_code'], dump_only=True)
@@ -56,7 +61,12 @@ class CommentSchema(Schema):
     parent_id = fields.Int(allow_none=True)
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
-    likes = fields.Int(dump_only=True)
+    likes = fields.Method("get_likes_count")
+    
+    def get_likes_count(self, obj):
+        # 计算点赞数量
+        from app.models import Like
+        return Like.query.filter_by(target_type='comment', target_id=obj.id).count()
     
     # 嵌套字段
     replies = fields.Nested('self', many=True, exclude=['parent_id', 'course_id'], dump_only=True)
