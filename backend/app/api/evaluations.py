@@ -33,6 +33,7 @@ class EvaluationsResource(Resource):
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 20))
         sort_by = request.args.get('sort_by', 'created_at')
+        score = request.args.get('score')
         
         # 构建查询
         query = Evaluation.query
@@ -40,11 +41,17 @@ class EvaluationsResource(Resource):
         if course_id:
             query = query.filter(Evaluation.course_id == course_id)
         
+        # 添加评分筛选
+        if score:
+            query = query.filter(Evaluation.score == int(score))
+        
         # 排序
         if sort_by == 'created_at':
             query = query.order_by(desc(Evaluation.created_at))
-        elif sort_by == 'score':
+        elif sort_by == 'score_desc':
             query = query.order_by(desc(Evaluation.score))
+        elif sort_by == 'score_asc':
+            query = query.order_by(Evaluation.score)
         elif sort_by == 'likes':
             query = query.order_by(desc(Evaluation.likes))
         

@@ -1,7 +1,7 @@
 App({
   globalData: {
     userInfo: null,
-    apiBaseUrl: 'http://192.168.1.104:5001/api',
+    apiBaseUrl: 'http://192.168.1.101:5001/api',
     token: null,
     userId: null
   },

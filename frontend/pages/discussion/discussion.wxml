@@ -3,7 +3,7 @@
   <view class="header">
     <view class="course-info">
       <view class="course-name">{{courseInfo.name}}</view>
-      <view class="course-meta">{{courseInfo.teacher}} · {{courseInfo.credit}}学分</view>
+      <view class="course-meta">{{courseInfo.teacher ? courseInfo.teacher.name : '-'}} · {{courseInfo.credit || 0}}学分</view>
     </view>
   </view>
 
@@ -24,11 +24,11 @@
       
       <view class="discussion-actions">
         <view class="action-item" bindtap="likeDiscussion" data-id="{{item.id}}">
-          <icon type="like" size="16" color="{{item.is_liked ? '#1aad19' : '#999'}}" class="icon" />
+          <text class="icon" style="color: {{item.is_liked ? '#1aad19' : '#999'}};">{{item.is_liked ? '❤️' : '🤍'}}</text>
           <text class="count">{{item.likes_count}}</text>
         </view>
         <view class="action-item" bindtap="replyDiscussion" data-id="{{item.id}}">
-          <icon type="chat" size="16" color="#999" class="icon" />
+          <text class="icon" style="color: #999;">💬</text>
           <text class="count">{{item.replies_count}}</text>
         </view>
       </view>
@@ -48,7 +48,7 @@
           </view>
         </view>
         <view wx:if="{{item.showAllReplies || item.replies.length <= 3}}" class="reply-input-container">
-          <input class="reply-input" placeholder="回复..." bindinput="onReplyInput" data-id="{{item.id}}" value="{{replyInputs[item.id] || ''}}" />
+          <textarea class="reply-input" placeholder="回复..." bindinput="onReplyInput" data-id="{{item.id}}" value="{{replyInputs[item.id] || ''}}" auto-height maxlength="-1" show-confirm-bar="false" />
           <button class="reply-btn" bindtap="submitReply" data-id="{{item.id}}">发送</button>
         </view>
         <view class="toggle-replies" wx:if="{{!item.showAllReplies && item.replies.length > 3}}" bindtap="toggleReplies" data-id="{{item.id}}">
@@ -58,7 +58,7 @@
       
       <view class="no-replies" wx:if="{{!item.replies || item.replies.length === 0}}">
         <view class="reply-input-container">
-          <input class="reply-input" placeholder="回复..." bindinput="onReplyInput" data-id="{{item.id}}" value="{{replyInputs[item.id] || ''}}" />
+          <textarea class="reply-input" placeholder="回复..." bindinput="onReplyInput" data-id="{{item.id}}" value="{{replyInputs[item.id] || ''}}" auto-height maxlength="-1" show-confirm-bar="false" />
           <button class="reply-btn" bindtap="submitReply" data-id="{{item.id}}">发送</button>
         </view>
       </view>
@@ -77,7 +77,7 @@
 
   <!-- 底部评论输入框 -->
   <view class="bottom-input">
-    <input class="main-input" placeholder="分享你的学习经验和想法..." bindinput="onMainInput" value="{{mainInput}}" />
+    <textarea class="main-input" placeholder="分享你的学习经验和想法..." bindinput="onMainInput" value="{{mainInput}}" auto-height maxlength="-1" show-confirm-bar="false" />
     <button class="send-btn" bindtap="submitDiscussion" disabled="{{!mainInput}}">发送</button>
   </view>
 </view>

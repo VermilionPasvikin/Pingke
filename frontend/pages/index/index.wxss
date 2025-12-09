@@ -1,139 +1,347 @@
 .container {
-  padding: 10px;
+  padding: 15px;
+  background-color: #f7f9fc;
+  min-height: 100vh;
 }
 
 /* 搜索栏样式 */
 .search-bar {
   display: flex;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  gap: 10px;
+  animation: fadeIn 0.5s ease-in;
 }
 
 .search-bar input {
-  flex: 1;
-  height: 36px;
-  border: 1px solid #ddd;
-  border-radius: 4px 0 0 4px;
-  padding: 0 10px;
-  font-size: 14px;
+  flex: 2;
+  height: 44px;
+  border: 1px solid #e6e8eb;
+  border-radius: 22px 0 0 22px;
+  padding: 0 18px;
+  font-size: 15px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.search-bar input:focus {
+  border-color: #07c160;
+  box-shadow: 0 4px 12px rgba(7, 193, 96, 0.2);
 }
 
 .search-bar button {
-  height: 36px;
-  line-height: 36px;
-  font-size: 14px;
-  padding: 0 15px;
+  flex: 1;
+  height: 44px;
+  line-height: 44px;
+  font-size: 15px;
+  padding: 0 10px;
+  border-radius: 0 22px 22px 0;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  min-width: 80px;
+}
+
+.search-bar button:active {
+  transform: scale(0.98);
 }
 
 /* 筛选栏样式 */
 .filter-bar {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
-  padding: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s ease-in 0.1s both;
+  gap: 10px;
 }
 
 .filter-item {
-  padding: 5px 10px;
-  background-color: #f5f5f5;
-  border-radius: 4px;
+  flex: 1;
+  padding: 8px 12px;
+  background-color: #f0f2f5;
+  border-radius: 20px;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.3s ease;
+  border: 1px solid #e6e8eb;
+  text-align: center;
+}
+
+.filter-item:active {
+  background-color: #e6e8eb;
+  transform: scale(0.98);
+}
+
+/* 学院筛选按钮样式 */
+.filter-bar button {
+  flex: 1;
+  height: 36px;
+  line-height: 36px;
+  font-size: 14px;
+  padding: 0 12px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.filter-bar button:active {
+  transform: scale(0.98);
 }
 
 /* 课程列表样式 */
 .course-list {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .course-item {
   background-color: #fff;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  animation: listItemFadeIn 0.6s ease forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 为每个课程项设置不同的动画延迟 */
+.course-item:nth-child(1) { animation-delay: 0.1s; }
+.course-item:nth-child(2) { animation-delay: 0.2s; }
+.course-item:nth-child(3) { animation-delay: 0.3s; }
+.course-item:nth-child(4) { animation-delay: 0.4s; }
+.course-item:nth-child(5) { animation-delay: 0.5s; }
+.course-item:nth-child(6) { animation-delay: 0.6s; }
+.course-item:nth-child(7) { animation-delay: 0.7s; }
+.course-item:nth-child(8) { animation-delay: 0.8s; }
+.course-item:nth-child(9) { animation-delay: 0.9s; }
+.course-item:nth-child(10) { animation-delay: 1s; }
+
+.course-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #07c160, #52c41a);
+}
+
+.course-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 .course-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .course-name {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: #333;
   flex: 1;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.course-item:hover .course-name {
+  color: #07c160;
 }
 
 .course-code {
-  font-size: 12px;
-  color: #999;
-  margin-left: 10px;
-  background-color: #f5f5f5;
-  padding: 2px 6px;
-  border-radius: 3px;
+  font-size: 13px;
+  color: #666;
+  margin-left: 12px;
+  background-color: #f0f2f5;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 500;
 }
 
 .course-info {
   display: flex;
-  margin-bottom: 10px;
-  font-size: 14px;
-  color: #666;
+  margin-bottom: 12px;
+  font-size: 15px;
+  color: #888;
+  gap: 20px;
 }
 
 .teacher-name {
-  margin-right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.teacher-name::before {
+  content: '👨‍🏫';
+  font-size: 14px;
+}
+
+.credit {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.credit::before {
+  content: '📚';
+  font-size: 14px;
 }
 
 .course-rating {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .score {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   color: #ff6b6b;
-  margin-right: 10px;
+  margin-right: 12px;
+  text-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
+  animation: scorePopIn 0.5s ease-out;
 }
 
 .evaluation-count {
-  font-size: 12px;
-  color: #999;
+  font-size: 13px;
+  color: #888;
+  background-color: #f5f5f5;
+  padding: 3px 10px;
+  border-radius: 12px;
 }
 
 .course-tags {
   display: flex;
   flex-wrap: wrap;
+  gap: 8px;
 }
 
 .tag {
   display: inline-block;
-  padding: 2px 8px;
-  background-color: #f0f0f0;
+  padding: 6px 14px;
+  background-color: #f0f2f5;
   color: #666;
-  font-size: 12px;
-  border-radius: 10px;
-  margin-right: 8px;
-  margin-bottom: 5px;
+  font-size: 13px;
+  border-radius: 16px;
+  margin: 0;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid #e6e8eb;
+}
+
+.tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 随机标签颜色 */
+.tag:nth-child(5n+1) {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border-color: #bbdefb;
+}
+
+.tag:nth-child(5n+2) {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+  border-color: #e1bee7;
+}
+
+.tag:nth-child(5n+3) {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border-color: #c8e6c9;
+}
+
+.tag:nth-child(5n+4) {
+  background-color: #fff3e0;
+  color: #ef6c00;
+  border-color: #ffe0b2;
+}
+
+.tag:nth-child(5n+5) {
+  background-color: #fbe9e7;
+  color: #c62828;
+  border-color: #ffccbc;
 }
 
 /* 空状态提示 */
 .empty-tip {
   text-align: center;
-  color: #999;
-  padding: 30px 0;
+  color: #888;
+  padding: 80px 20px;
+  font-size: 16px;
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
 }
 
 /* 加载更多 */
 .load-more {
   text-align: center;
-  padding: 10px 0;
+  padding: 20px 0;
+  animation: fadeIn 0.5s ease-in;
 }
 
 .load-more button {
-  font-size: 14px;
+  font-size: 15px;
+  padding: 10px 24px;
+  border-radius: 24px;
+  background-color: #fff;
+  border: 1px solid #e6e8eb;
+  color: #666;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.load-more button:hover {
+  background-color: #f0f2f5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.load-more button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes listItemFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scorePopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

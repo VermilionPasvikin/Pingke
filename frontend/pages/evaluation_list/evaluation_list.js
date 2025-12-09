@@ -56,9 +56,9 @@ Page({
     const params = {
       course_id: this.data.courseId,
       page: refresh ? 1 : this.data.page,
-      page_size: this.data.pageSize,
-      sort_by: this.data.sortIndex === 0 ? 'newest' : 
-               this.data.sortIndex === 1 ? 'likes_desc' :
+      per_page: this.data.pageSize,
+      sort_by: this.data.sortIndex === 0 ? 'created_at' : 
+               this.data.sortIndex === 1 ? 'likes' :
                this.data.sortIndex === 2 ? 'score_desc' : 'score_asc'
     };
     

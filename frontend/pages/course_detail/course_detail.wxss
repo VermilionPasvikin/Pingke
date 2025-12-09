@@ -340,7 +340,10 @@
   margin: 0 5px;
   font-size: 14px;
   height: 40px;
-  line-height: 40px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 空状态 */

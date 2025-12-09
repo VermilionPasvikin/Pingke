@@ -162,23 +162,30 @@
 }
 
 .reply-input {
-  flex: 1;
-  height: 32px;
+  flex: 2;
+  min-height: 32px;
+  max-height: 90px; /* 约5行高度 */
   background-color: #f5f5f5;
   border-radius: 16px;
-  padding: 0 15px;
+  padding: 8px 15px;
   font-size: 13px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .reply-btn {
+  flex: 1;
   margin-left: 8px;
   height: 32px;
   font-size: 12px;
   background-color: #1aad19;
   color: #fff;
   line-height: 32px;
-  padding: 0 15px;
+  padding: 0 10px;
   border-radius: 16px;
+  text-align: center;
 }
 
 /* 切换回复显示 */
@@ -222,25 +229,32 @@
 }
 
 .main-input {
-  flex: 1;
-  height: 36px;
+  flex: 2;
+  min-height: 36px;
+  max-height: 100px; /* 约5行高度 */
   background-color: #f5f5f5;
   border-radius: 18px;
-  padding: 0 15px;
+  padding: 8px 15px;
   font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .send-btn {
+  flex: 1;
   margin-left: 10px;
   height: 36px;
   font-size: 14px;
   background-color: #1aad19;
   color: #fff;
   line-height: 36px;
-  padding: 0 18px;
+  padding: 0 10px;
   border-radius: 18px;
   opacity: 1;
   transition: all 0.3s;
+  text-align: center;
 }
 
 .send-btn[disabled] {
