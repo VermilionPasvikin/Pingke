@@ -261,13 +261,13 @@ class CourseRatingDistributionResource(Resource):
         # 验证数据
         errors = course_schema.validate(data, partial=True)
         if errors:
-            return jsonify({'error': errors}), 400
+            return {'error': errors}, 400
         
         # 检查教师是否存在
         if 'teacher_id' in data and data['teacher_id']:
             teacher = Teacher.query.get(data['teacher_id'])
             if not teacher:
-                return jsonify({'error': 'Teacher not found'}), 404
+                return {'error': 'Teacher not found'}, 404
         
         # 更新字段
         for key, value in data.items():
@@ -284,12 +284,12 @@ class CourseRatingDistributionResource(Resource):
         
         # 检查是否有关联的评价或评论
         if course.evaluations or course.comments:
-            return jsonify({'error': 'Cannot delete course with associated evaluations or comments'}), 400
+            return {'error': 'Cannot delete course with associated evaluations or comments'}, 400
         
         db.session.delete(course)
         db.session.commit()
         
-        return jsonify({'message': 'Course deleted successfully'}), 200
+        return {'message': 'Course deleted successfully'}, 200
 
 # 注册路由
 # 延迟导入api对象以避免循环导入

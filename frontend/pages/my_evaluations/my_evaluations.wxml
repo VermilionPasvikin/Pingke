@@ -1,0 +1,45 @@
+<view class="container">
+  <view class="header">
+    <text class="title">我的评价</text>
+    <text class="count">共 {{total}} 条</text>
+  </view>
+
+  <view class="evaluations-list">
+    <view class="evaluation-item" wx:for="{{evaluations}}" wx:key="id">
+      <view class="evaluation-header">
+        <view class="course-name">{{item.course.name}}</view>
+        <view class="actions">
+          <text class="action-btn delete" bindtap="deleteEvaluation" data-id="{{item.id}}">删除</text>
+        </view>
+      </view>
+
+      <view class="score-info">
+        <view class="score">
+          <text class="score-number">{{item.score}}</text>
+          <text class="score-max">/5.0</text>
+        </view>
+        <view class="date">{{item.created_at}}</view>
+      </view>
+
+      <view class="tags" wx:if="{{item.tags && item.tags.length > 0}}">
+        <view class="tag" wx:for="{{item.tags}}" wx:key="index" wx:for-item="tag">
+          {{tag}}
+        </view>
+      </view>
+
+      <view class="comment" wx:if="{{item.comment}}">{{item.comment}}</view>
+
+      <view class="stats">
+        <text class="likes">👍 {{item.likes || 0}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{evaluations.length === 0 && !loading}}">
+    <text>暂无评价</text>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

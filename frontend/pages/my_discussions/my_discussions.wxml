@@ -1,0 +1,55 @@
+<view class="container">
+  <view class="header">
+    <text class="title">我的讨论</text>
+    <text class="count">共 {{total}} 条</text>
+  </view>
+
+  <view class="tabs">
+    <view class="tab {{activeTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-tab="0">
+      全部 ({{total}})
+    </view>
+    <view class="tab {{activeTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-tab="1">
+      讨论 ({{discussionsCount}})
+    </view>
+    <view class="tab {{activeTab === 2 ? 'active' : ''}}" bindtap="switchTab" data-tab="2">
+      回复 ({{repliesCount}})
+    </view>
+  </view>
+
+  <view class="discussions-list">
+    <view class="discussion-item" wx:for="{{displayList}}" wx:key="id">
+      <view class="discussion-header">
+        <view class="course-name">{{item.course.name}}</view>
+        <view class="type-badge {{item.type}}">
+          {{item.type === 'discussion' ? '讨论' : '回复'}}
+        </view>
+      </view>
+
+      <view class="parent-info" wx:if="{{item.type === 'reply'}}">
+        <text class="parent-label">回复：</text>
+        <text class="parent-author">{{item.parent_author}}</text>
+        <text class="parent-content">「{{item.parent_content}}」</text>
+      </view>
+
+      <view class="content">{{item.content}}</view>
+
+      <view class="footer">
+        <view class="date">{{item.created_at}}</view>
+        <view class="stats">
+          <text class="likes">👍 {{item.likes_count || 0}}</text>
+        </view>
+        <view class="actions">
+          <text class="action-btn delete" bindtap="deleteDiscussion" data-id="{{item.id}}" data-type="{{item.type}}">删除</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{displayList.length === 0 && !loading}}">
+    <text>暂无{{activeTab === 1 ? '讨论' : activeTab === 2 ? '回复' : '内容'}}</text>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

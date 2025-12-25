@@ -1,30 +1,14 @@
 from flask import request, jsonify
 from flask_restful import Resource
-import jwt
-import os
 from app import db
 from app.models import Comment, Course, Like, User
 from app.schemas import CommentSchema
+from app.utils.auth import get_current_user
 from sqlalchemy import desc
+from datetime import datetime
 
 comment_schema = CommentSchema()
 comments_schema = CommentSchema(many=True)
-
-def get_current_user():
-    """从请求头中获取当前用户信息"""
-    auth_header = request.headers.get('Authorization')
-    if not auth_header or not auth_header.startswith('Bearer '):
-        return None
-    
-    token = auth_header.split(' ')[1]
-    try:
-        secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
-        payload = jwt.decode(token, secret_key, algorithms=['HS256'])
-        user_id = payload.get('user_id')
-        user = User.query.get(user_id)
-        return user
-    except Exception:
-        return None
 
 class DiscussionsResource(Resource):
     def get(self):
@@ -149,13 +133,13 @@ class DiscussionResource(Resource):
     def get(self, discussion_id):
         # 获取单个讨论详情
         comment = Comment.query.get_or_404(discussion_id)
-        
+
         result = comment_schema.dump(comment)
         # 转换格式
         result['author'] = result['user_name']
         result['likes_count'] = result['likes']
         result['is_liked'] = False
-        
+
         # 获取所有回复
         replies = []
         for reply in comment.replies:
@@ -164,11 +148,76 @@ class DiscussionResource(Resource):
             reply_data['likes_count'] = reply_data['likes']
             reply_data['is_liked'] = False
             replies.append(reply_data)
-        
+
         result['replies'] = replies
         result['replies_count'] = len(replies)
-        
+
         return result, 200
+
+    def put(self, discussion_id):
+        # 更新讨论内容（仅允许发帖者自己更新）
+        # 获取当前登录用户
+        user = get_current_user()
+        if not user:
+            return {'error': '请先登录'}, 401
+
+        comment = Comment.query.get_or_404(discussion_id)
+
+        # 确保是顶级评论（讨论）
+        if comment.parent_id is not None:
+            return {'error': 'Not a discussion'}, 400
+
+        # 验证用户权限
+        if comment.user_id != user.id:
+            return {'error': 'Unauthorized to update this discussion'}, 403
+
+        data = request.get_json()
+
+        # 验证数据
+        if 'content' in data:
+            if not data['content'] or not data['content'].strip():
+                return {'error': 'Discussion content cannot be empty'}, 400
+            comment.content = data['content']
+            comment.updated_at = datetime.utcnow()
+
+        db.session.commit()
+
+        # 返回格式化的数据
+        result = comment_schema.dump(comment)
+        result['author'] = result['user_name']
+
+        return result, 200
+
+    def delete(self, discussion_id):
+        # 删除讨论（仅允许发帖者自己删除）
+        # 获取当前登录用户
+        user = get_current_user()
+        if not user:
+            return {'error': '请先登录'}, 401
+
+        comment = Comment.query.get_or_404(discussion_id)
+
+        # 确保是顶级评论（讨论）
+        if comment.parent_id is not None:
+            return {'error': 'Not a discussion'}, 400
+
+        # 验证用户权限
+        if comment.user_id != user.id:
+            return {'error': 'Unauthorized to delete this discussion'}, 403
+
+        # 删除讨论及其所有回复（级联删除）
+        def delete_comment_tree(comment):
+            # 删除该评论的所有点赞
+            Like.query.filter_by(target_type='comment', target_id=comment.id).delete()
+            # 递归删除所有回复
+            for reply in comment.replies:
+                delete_comment_tree(reply)
+            db.session.delete(comment)
+
+        delete_comment_tree(comment)
+        db.session.commit()
+
+        return {'message': 'Discussion deleted successfully'}, 200
 
 class DiscussionRepliesResource(Resource):
     def post(self, discussion_id):

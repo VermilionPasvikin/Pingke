@@ -6,7 +6,13 @@ import os
 import time
 from datetime import datetime, timedelta
 from app import db
-from app.models import User
+from app.models import User, Evaluation, Comment, Like
+from app.schemas import EvaluationSchema, CommentSchema
+from app.utils.auth import get_current_user
+from sqlalchemy import desc
+
+evaluations_schema = EvaluationSchema(many=True)
+comments_schema = CommentSchema(many=True)
 
 class WechatLoginResource(Resource):
     def post(self):
@@ -37,9 +43,10 @@ class WechatLoginResource(Resource):
         
         # 生成JWT token
         token = self._generate_jwt_token(user.id)
-        
+
         return {
             'token': token,
+            'user_id': user.id,
             'user': {
                 'id': user.id,
                 'nickname': user.nickname,
@@ -103,19 +110,140 @@ class UpdateUserInfoResource(Resource):
         """更新用户信息"""
         # 这里应该验证token中的user_id与请求的user_id是否匹配
         # 为了简化，暂时省略验证步骤
-        
+
         data = request.get_json()
         user = User.query.get_or_404(user_id)
-        
+
         # 更新用户信息
         if 'nickname' in data:
             user.nickname = data['nickname']
-        
+
         if 'avatar_url' in data:
             user.avatar_url = data['avatar_url']
-        
+
         db.session.commit()
-        
+
+        return {
+            'id': user.id,
+            'nickname': user.nickname,
+            'avatar_url': user.avatar_url
+        }, 200
+
+class CurrentUserResource(Resource):
+    def get(self):
+        """获取当前登录用户信息及统计数据"""
+        user = get_current_user()
+        if not user:
+            return {'error': '请先登录'}, 401
+
+        # 统计用户数据
+        evaluations_count = Evaluation.query.filter_by(user_id=user.id).count()
+        discussions_count = Comment.query.filter_by(user_id=user.id, parent_id=None).count()
+        comments_count = Comment.query.filter_by(user_id=user.id).filter(Comment.parent_id.isnot(None)).count()
+
+        return {
+            'id': user.id,
+            'nickname': user.nickname,
+            'avatar_url': user.avatar_url,
+            'openid': user.openid,
+            'created_at': user.created_at.isoformat() if user.created_at else None,
+            'stats': {
+                'evaluations_count': evaluations_count,
+                'discussions_count': discussions_count,
+                'comments_count': comments_count,
+                'total_posts': evaluations_count + discussions_count + comments_count
+            }
+        }, 200
+
+class UserEvaluationsResource(Resource):
+    def get(self, user_id):
+        """获取指定用户的评价列表"""
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 20))
+
+        # 构建查询
+        query = Evaluation.query.filter_by(user_id=user_id)
+        query = query.order_by(desc(Evaluation.created_at))
+
+        # 分页
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        evaluations = pagination.items
+
+        result = evaluations_schema.dump(evaluations)
+
+        return {
+            'evaluations': result,
+            'total': pagination.total,
+            'page': page,
+            'per_page': per_page
+        }, 200
+
+class UserDiscussionsResource(Resource):
+    def get(self, user_id):
+        """获取指定用户的讨论列表（包括评论和回复）"""
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 20))
+
+        # 获取用户的所有评论（包括讨论和回复）
+        query = Comment.query.filter_by(user_id=user_id)
+        query = query.order_by(desc(Comment.created_at))
+
+        # 分页
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        comments = pagination.items
+
+        # 格式化数据
+        result = []
+        for comment in comments:
+            comment_data = comments_schema.dump([comment])[0]
+            # 添加类型标识
+            comment_data['type'] = 'discussion' if comment.parent_id is None else 'reply'
+            # 添加点赞信息
+            likes_count = Like.query.filter_by(
+                target_type='comment',
+                target_id=comment.id
+            ).count()
+            comment_data['likes_count'] = likes_count
+
+            # 如果是回复，添加父评论信息
+            if comment.parent_id:
+                parent = Comment.query.get(comment.parent_id)
+                if parent:
+                    comment_data['parent_author'] = parent.user_name
+                    comment_data['parent_content'] = parent.content[:50] + '...' if len(parent.content) > 50 else parent.content
+
+            result.append(comment_data)
+
+        return {
+            'discussions': result,
+            'total': pagination.total,
+            'page': page,
+            'per_page': per_page
+        }, 200
+
+class UpdateNicknameResource(Resource):
+    def put(self):
+        """更新当前用户昵称"""
+        user = get_current_user()
+        if not user:
+            return {'error': '请先登录'}, 401
+
+        data = request.get_json()
+
+        if 'nickname' not in data:
+            return {'error': '缺少昵称参数'}, 400
+
+        nickname = data['nickname'].strip()
+        if not nickname:
+            return {'error': '昵称不能为空'}, 400
+
+        if len(nickname) > 50:
+            return {'error': '昵称长度不能超过50个字符'}, 400
+
+        user.nickname = nickname
+        user.updated_at = datetime.utcnow()
+        db.session.commit()
+
         return {
             'id': user.id,
             'nickname': user.nickname,
@@ -126,3 +254,7 @@ class UpdateUserInfoResource(Resource):
 from app.api import api
 api.add_resource(WechatLoginResource, '/api/auth/wechat-login')
 api.add_resource(UpdateUserInfoResource, '/api/users/<int:user_id>')
+api.add_resource(CurrentUserResource, '/api/me')
+api.add_resource(UserEvaluationsResource, '/api/users/<int:user_id>/evaluations')
+api.add_resource(UserDiscussionsResource, '/api/users/<int:user_id>/discussions')
+api.add_resource(UpdateNicknameResource, '/api/me/nickname')

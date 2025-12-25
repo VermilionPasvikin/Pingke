@@ -41,7 +41,7 @@ class RankingsResource(Resource):
             
             # 按评分排序
             course_scores.sort(key=lambda x: x['score'], reverse=True)
-            return jsonify({'list': course_scores[:limit]}), 200
+            return {'list': course_scores[:limit]}, 200
             
         elif ranking_type == 'teachers':
             # 教师排行榜
@@ -69,7 +69,7 @@ class RankingsResource(Resource):
                     })
             
             teacher_scores.sort(key=lambda x: x['score'], reverse=True)
-            return jsonify({'list': teacher_scores[:limit]}), 200
+            return {'list': teacher_scores[:limit]}, 200
             
         elif ranking_type == 'tags':
             # 标签排行榜（简化版）

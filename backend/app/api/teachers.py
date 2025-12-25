@@ -44,7 +44,7 @@ class TeacherResource(Resource):
         # 获取单个教师信息
         teacher = Teacher.query.get_or_404(teacher_id)
         result = teacher_schema.dump(teacher)
-        return jsonify(result), 200
+        return result, 200
     
     def put(self, teacher_id):
         # 更新教师信息
@@ -54,7 +54,7 @@ class TeacherResource(Resource):
         # 验证数据
         errors = teacher_schema.validate(data, partial=True)
         if errors:
-            return jsonify({'error': errors}), 400
+            return {'error': errors}, 400
         
         # 更新字段
         for key, value in data.items():
@@ -63,7 +63,7 @@ class TeacherResource(Resource):
         db.session.commit()
         
         result = teacher_schema.dump(teacher)
-        return jsonify(result), 200
+        return result, 200
     
     def delete(self, teacher_id):
         # 删除教师
@@ -98,7 +98,7 @@ class TeacherCoursesResource(Resource):
                 course_data['evaluation_count'] = 0
             result.append(course_data)
         
-        return jsonify(result), 200
+        return result, 200
 
 # 注册路由
 # 延迟导入api对象以避免循环导入

@@ -1,0 +1,17 @@
+<view class="container">
+  <view class="form">
+    <view class="form-item">
+      <text class="label">昵称</text>
+      <input class="input"
+             value="{{nickname}}"
+             placeholder="请输入昵称"
+             maxlength="50"
+             bindinput="onNicknameInput" />
+    </view>
+    <view class="tips">昵称长度不能超过50个字符</view>
+  </view>
+
+  <button class="save-btn" bindtap="saveNickname" disabled="{{!canSave}}">
+    保存
+  </button>
+</view>

@@ -54,7 +54,7 @@ class Course(db.Model):
 # 评价表
 class Evaluation(db.Model):
     __tablename__ = 'evaluations'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -64,6 +64,8 @@ class Evaluation(db.Model):
     teaching_score = db.Column(db.Float)  # 教学评分
     tags = db.Column(db.String(500))  # 标签，用逗号分隔
     comment = db.Column(db.Text)  # 评价内容
+    is_anonymous = db.Column(db.Boolean, default=False)  # 是否匿名评价
+    user_name = db.Column(db.String(100))  # 用户昵称或"匿名用户"
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

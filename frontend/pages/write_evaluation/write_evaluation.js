@@ -208,7 +208,7 @@ Page({
     if (this.data.submitting) return;
     
     this.setData({ submitting: true });
-    
+
     // 准备提交数据
     const evaluationData = {
       course_id: this.data.courseId,
@@ -217,11 +217,15 @@ Page({
       comment: this.data.comment.trim(),
       anonymous: this.data.anonymous
     };
-    
+
+    // 获取认证头
+    const authHeader = app.getAuthHeader();
+
     // 提交评价
     wx.request({
       url: `${app.globalData.apiBaseUrl}/evaluations`,
       method: 'POST',
+      header: authHeader,
       data: evaluationData,
       success: (res) => {
         if (res.statusCode === 201) {
@@ -230,6 +234,14 @@ Page({
           setTimeout(() => {
             wx.navigateBack();
           }, 1500);
+        } else if (res.statusCode === 401) {
+          wx.showToast({ title: '请先登录', icon: 'none' });
+          app.wechatLogin();
+        } else if (res.statusCode === 400 && res.data && res.data.error) {
+          const errorMsg = res.data.error.includes('already evaluated')
+            ? '您已评价过此课程'
+            : '提交失败，请重试';
+          wx.showToast({ title: errorMsg, icon: 'none', duration: 2000 });
         } else {
           wx.showToast({ title: '提交失败，请重试', icon: 'none' });
         }

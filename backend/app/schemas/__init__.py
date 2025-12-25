@@ -39,6 +39,8 @@ class EvaluationSchema(Schema):
     teaching_score = fields.Float(validate=validate.Range(min=1, max=5))
     tags = fields.Str()
     comment = fields.Str()
+    is_anonymous = fields.Bool()
+    user_name = fields.Str()
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
     likes = fields.Method("get_likes_count")

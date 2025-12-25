@@ -136,10 +136,14 @@ Page({
       console.log('内容为空，不提交');
       return;
     }
-    
+
+    // 获取认证头
+    const authHeader = app.getAuthHeader();
+
     wx.request({
       url: `${app.globalData.apiBaseUrl}/discussions`,
       method: 'POST',
+      header: authHeader,
       data: {
         course_id: this.data.courseId,
         content: content
@@ -150,6 +154,11 @@ Page({
           this.setData({ mainInput: '' });
           // 重新加载讨论列表
           this.loadDiscussions(true);
+        } else if (res.statusCode === 401) {
+          wx.showToast({ title: '请先登录', icon: 'none' });
+          app.wechatLogin();
+        } else {
+          wx.showToast({ title: '发送失败', icon: 'none' });
         }
       },
       fail: () => {
@@ -164,22 +173,26 @@ Page({
   submitReply: function(e) {
     const discussionId = e.currentTarget.dataset.id;
     const content = this.data.replyInputs[discussionId]?.trim();
-    
+
     if (!content) return;
-    
+
+    // 获取认证头
+    const authHeader = app.getAuthHeader();
+
     wx.request({
       url: `${app.globalData.apiBaseUrl}/discussions/${discussionId}/replies`,
       method: 'POST',
+      header: authHeader,
       data: { content: content },
       success: (res) => {
         if (res.statusCode === 201) {
           wx.showToast({ title: '回复成功' });
-          
+
           // 清空回复输入框
           this.setData({
             [`replyInputs[${discussionId}]`]: ''
           });
-          
+
           // 更新该讨论的回复列表
           const updatedDiscussions = this.data.discussions.map(item => {
             if (item.id === discussionId) {
@@ -192,6 +205,11 @@ Page({
             return item;
           });
           this.setData({ discussions: updatedDiscussions });
+        } else if (res.statusCode === 401) {
+          wx.showToast({ title: '请先登录', icon: 'none' });
+          app.wechatLogin();
+        } else {
+          wx.showToast({ title: '回复失败', icon: 'none' });
         }
       },
       fail: () => {

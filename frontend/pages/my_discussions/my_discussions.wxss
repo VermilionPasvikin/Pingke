@@ -1,0 +1,166 @@
+.container {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.header {
+  background: white;
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1rpx solid #eee;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.count {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.tabs {
+  background: white;
+  display: flex;
+  border-bottom: 1rpx solid #eee;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  position: relative;
+}
+
+.tab.active {
+  color: #07C160;
+  font-weight: bold;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background: #07C160;
+  border-radius: 2rpx;
+}
+
+.discussions-list {
+  padding: 20rpx;
+}
+
+.discussion-item {
+  background: white;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.discussion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.course-name {
+  font-size: 28rpx;
+  color: #666;
+  flex: 1;
+}
+
+.type-badge {
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+.type-badge.discussion {
+  background: #e7f7ef;
+  color: #07C160;
+}
+
+.type-badge.reply {
+  background: #e7f0ff;
+  color: #3a7dff;
+}
+
+.parent-info {
+  background: #f8f8f8;
+  padding: 16rpx;
+  border-radius: 8rpx;
+  margin-bottom: 20rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.parent-label {
+  color: #999;
+}
+
+.parent-author {
+  color: #07C160;
+  margin: 0 8rpx;
+}
+
+.parent-content {
+  color: #666;
+}
+
+.content {
+  font-size: 28rpx;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.date {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.stats {
+  font-size: 24rpx;
+  color: #999;
+  flex: 1;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-btn {
+  font-size: 24rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
+}
+
+.action-btn.delete {
+  color: #ff4444;
+  background: #fff0f0;
+}
+
+.empty, .loading {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #999;
+}

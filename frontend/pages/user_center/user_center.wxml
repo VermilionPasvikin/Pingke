@@ -1,0 +1,45 @@
+<view class="container">
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <image class="avatar" src="{{userInfo.avatar_url || '/assets/default_avatar.png'}}" mode="aspectFill"></image>
+    <view class="user-info">
+      <view class="nickname">{{userInfo.nickname || '未设置昵称'}}</view>
+      <view class="user-id">ID: {{userInfo.id}}</view>
+    </view>
+    <view class="edit-btn" bindtap="editNickname">
+      <text class="icon">✏️</text>
+    </view>
+  </view>
+
+  <!-- 统计数据 -->
+  <view class="stats-card">
+    <view class="stat-item">
+      <view class="stat-number">{{stats.evaluations_count || 0}}</view>
+      <view class="stat-label">评价</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-number">{{stats.discussions_count || 0}}</view>
+      <view class="stat-label">讨论</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <view class="stat-number">{{stats.comments_count || 0}}</view>
+      <view class="stat-label">回复</view>
+    </view>
+  </view>
+
+  <!-- 功能列表 -->
+  <view class="menu-list">
+    <view class="menu-item" bindtap="navigateToMyEvaluations">
+      <view class="menu-icon">📝</view>
+      <view class="menu-text">我的评价</view>
+      <view class="menu-arrow">›</view>
+    </view>
+    <view class="menu-item" bindtap="navigateToMyDiscussions">
+      <view class="menu-icon">💬</view>
+      <view class="menu-text">我的讨论</view>
+      <view class="menu-arrow">›</view>
+    </view>
+  </view>
+</view>
