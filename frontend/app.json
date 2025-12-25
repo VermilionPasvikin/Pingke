@@ -35,7 +35,9 @@
       },
       {
         "pagePath": "pages/user_center/user_center",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "assets/icon_user.png",
+        "selectedIconPath": "assets/icon_user_selected.png"
       }
     ]
   },
