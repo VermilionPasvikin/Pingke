@@ -58,6 +58,16 @@
   gap: 10px;
 }
 
+/* 主筛选器（学期和排序）各占30%宽度 */
+.main-picker {
+  flex: 3;
+}
+
+/* 学院筛选占40%宽度 */
+.department-picker {
+  flex: 4;
+}
+
 .filter-item {
   flex: 1;
   padding: 8px 12px;
@@ -77,14 +87,17 @@
 
 /* 学院筛选按钮样式 */
 .filter-bar button {
-  flex: 1;
+  width: 100%;
   height: 36px;
   line-height: 36px;
-  font-size: 14px;
-  padding: 0 12px;
+  font-size: 13px;
+  padding: 0 8px;
   border-radius: 20px;
   transition: all 0.3s ease;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .filter-bar button:active {
@@ -343,5 +356,81 @@
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* 已选学院显示样式 */
+.selected-departments {
+  background-color: #fff;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s ease-in;
+}
+
+.selected-departments .label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+  display: block;
+  font-weight: 500;
+}
+
+.department-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.department-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e8f5e8;
+  border: 1px solid #c8e6c9;
+  color: #2e7d32;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  animation: tagSlideIn 0.3s ease;
+}
+
+.department-tag text {
+  margin-right: 6px;
+}
+
+.remove-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  margin-left: 4px;
+  text-align: center;
+  padding: 0;
+  vertical-align: middle;
+}
+
+.remove-icon:active {
+  background-color: rgba(0, 0, 0, 0.2);
+  transform: scale(0.9);
+}
+
+@keyframes tagSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }

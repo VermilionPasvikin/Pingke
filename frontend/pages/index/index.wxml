@@ -7,15 +7,28 @@
   
   <!-- 筛选选项 -->
   <view class="filter-bar">
-    <picker bindchange="onSemesterChange" value="{{semesterIndex}}" range="{{semesterOptions}}">
+    <picker bindchange="onSemesterChange" value="{{semesterIndex}}" range="{{semesterOptions}}" class="main-picker">
       <view class="filter-item">{{semesterOptions[semesterIndex]}}</view>
     </picker>
-    <picker bindchange="onSortChange" value="{{sortIndex}}" range="{{sortOptions}}">
+    <picker bindchange="onSortChange" value="{{sortIndex}}" range="{{sortOptions}}" class="main-picker">
       <view class="filter-item">{{sortOptions[sortIndex]}}</view>
     </picker>
-    <button type="default" bindtap="showDepartmentFilter">
-      学院筛选{{selectedDepartments.length > 0 ? '(' + selectedDepartments.length + ')' : ''}}
-    </button>
+    <picker bindchange="onDepartmentChange" value="{{departmentIndex}}" range="{{departmentOptions}}" class="department-picker">
+      <button type="default">
+        学院筛选{{selectedDepartments.length > 0 ? '(' + selectedDepartments.length + ')' : ''}}
+      </button>
+    </picker>
+  </view>
+
+  <!-- 已选学院显示 -->
+  <view class="selected-departments" wx:if="{{selectedDepartments.length > 0}}">
+    <text class="label">已选学院：</text>
+    <view class="department-tags">
+      <view wx:for="{{selectedDepartments}}" wx:key="index" class="department-tag">
+        <text>{{item}}</text>
+        <text class="remove-icon" bindtap="removeDepartment" data-index="{{index}}">×</text>
+      </view>
+    </view>
   </view>
   
   <!-- 课程列表 -->

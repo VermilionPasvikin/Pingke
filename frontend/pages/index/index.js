@@ -14,6 +14,7 @@ Page({
     sortIndex: 0,
     sortOptions: ['综合排序', '评分最高', '评分最低', '评论最多'],
     selectedDepartments: [],
+    departmentIndex: 0,
     // 添加学院列表数据源
     departmentOptions: ['全部学院', '计算机与人工智能学院', '外国语学院', '法学院', '数学与统计学院', '轻工业学院', '食品与健康学院', '经济学院', '商学院'],
     page: 1,
@@ -144,69 +145,66 @@ Page({
   },
 
   /**
-   * 显示学院筛选器
+   * 学院筛选变更
    */
-  showDepartmentFilter: function() {
-    const that = this;
-    // 创建一个临时数组来存储用户的选择
-    let tempSelections = [...this.data.selectedDepartments];
-    
-    // 直接显示操作菜单
-    wx.showActionSheet({
-      itemList: ['添加学院', '移除学院', '清空选择', '显示已选学院'],
-      success(res) {
-        if (res.tapIndex === 0) {
-          // 添加学院
-          wx.showActionSheet({
-            itemList: that.data.departmentOptions.slice(1),
-            success(res) {
-              const selectedDept = that.data.departmentOptions[res.tapIndex + 1];
-              if (!tempSelections.includes(selectedDept)) {
-                tempSelections.push(selectedDept);
-              }
-              that.setData({
-                selectedDepartments: tempSelections,
-                page: 1,
-                hasMore: true
-              });
-              that.loadCourses(true);
-            }
-          });
-        } else if (res.tapIndex === 1 && tempSelections.length > 0) {
-          // 移除学院
-          wx.showActionSheet({
-            itemList: tempSelections,
-            success(res) {
-              tempSelections.splice(res.tapIndex, 1);
-              that.setData({
-                selectedDepartments: tempSelections,
-                page: 1,
-                hasMore: true
-              });
-              that.loadCourses(true);
-            }
-          });
-        } else if (res.tapIndex === 2) {
-          // 清空选择
-          that.setData({
-            selectedDepartments: [],
-            page: 1,
-            hasMore: true
-          });
-          that.loadCourses(true);
-        } else if (res.tapIndex === 3) {
-          // 显示已选学院
-          wx.showModal({
-            title: '已选学院',
-            content: tempSelections.length > 0 ? tempSelections.join('\n') : '未选择任何学院',
-            showCancel: false
-          });
-        }
-      },
-      fail(res) {
-        console.log('筛选操作失败');
-      }
+  onDepartmentChange: function(e) {
+    const selectedIndex = parseInt(e.detail.value);
+    console.log('选择的学院索引:', selectedIndex);
+
+    // 如果选择"全部学院"（索引0），清空已选学院
+    if (selectedIndex === 0) {
+      this.setData({
+        selectedDepartments: [],
+        departmentIndex: 0,
+        page: 1,
+        hasMore: true
+      });
+      this.loadCourses(true);
+      return;
+    }
+
+    const selectedDept = this.data.departmentOptions[selectedIndex];
+    console.log('选择的学院:', selectedDept);
+
+    // 检查是否已经选择过这个学院
+    if (this.data.selectedDepartments.includes(selectedDept)) {
+      wx.showToast({
+        title: '该学院已添加',
+        icon: 'none',
+        duration: 1500
+      });
+      // 重置picker到"全部学院"
+      this.setData({ departmentIndex: 0 });
+      return;
+    }
+
+    // 添加到已选学院列表
+    const updatedDepartments = [...this.data.selectedDepartments, selectedDept];
+    this.setData({
+      selectedDepartments: updatedDepartments,
+      departmentIndex: 0, // 重置picker到"全部学院"
+      page: 1,
+      hasMore: true
     });
+    this.loadCourses(true);
+  },
+
+  /**
+   * 移除已选学院
+   */
+  removeDepartment: function(e) {
+    const index = e.currentTarget.dataset.index;
+    console.log('移除学院索引:', index);
+
+    const updatedDepartments = [...this.data.selectedDepartments];
+    updatedDepartments.splice(index, 1);
+
+    this.setData({
+      selectedDepartments: updatedDepartments,
+      page: 1,
+      hasMore: true
+    });
+    this.loadCourses(true);
   },
 
   /**
